@@ -1,6 +1,6 @@
 # Chitchat
 
-![](https://i.imgur.com/sFMcGxT.mp4)
+<img width="1066" alt="image" src="https://github.com/clarkmcc/chitchat/assets/6639685/fcd58f1c-df3b-40d1-a138-8639cde0c684">
 
 A simple LLM chat front-end that makes it easy to find, download, and mess around with LLM models on your local machine.
 This is a very early-stage project, so expect bugs and missing features. On the bright side, here's what it supports
