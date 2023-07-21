@@ -1,0 +1,65 @@
+[
+  {
+    "name": "Vicuna 7B (2-bit k-quant)",
+    "description": "New k-quant method. Uses GGML_TYPE_Q4_K for the attention.vw and feed_forward.w2 tensors, GGML_TYPE_Q2_K for the other tensors.",
+    "filename": "vicuna-7b-v1.3.ggmlv3.q2_K.bin",
+    "url": "https://huggingface.co/localmodels/Vicuna-7B-v1.3-ggml/resolve/main/vicuna-7b-v1.3.ggmlv3.q2_K.bin",
+    "id": "vicuna-7b-v1.3.ggmlv3.q2_K"
+  },
+  {
+    "name": "Vicuna 7B (8-bit)",
+    "description": "Original llama.cpp quant method, 8-bit. Almost indistinguishable from float16. High resource use and slow. Not recommended for most users.",
+    "filename": "vicuna-7b-v1.3.ggmlv3.q8_0.bin",
+    "url": "https://huggingface.co/localmodels/Vicuna-7B-v1.3-ggml/resolve/main/vicuna-7b-v1.3.ggmlv3.q8_0.bin",
+    "id": "vicuna-7b-v1.3.ggmlv3.q8_0"
+  },
+  {
+    "name": "Vicuna 33B (2-bit k-quant)",
+    "description": "New k-quant method. Uses GGML_TYPE_Q4_K for the attention.vw and feed_forward.w2 tensors, GGML_TYPE_Q2_K for the other tensors.",
+    "filename": "vicuna-33b.ggmlv3.q2_K.bin",
+    "url": "https://huggingface.co/localmodels/Vicuna-33B-v1.3-ggml/resolve/main/vicuna-33b.ggmlv3.q2_K.bin",
+    "id": "vicuna-33b.ggmlv3.q2_K"
+  },
+  {
+    "name": "Vicuna 33B (8-bit)",
+    "description": "Original llama.cpp quant method, 8-bit. Almost indistinguishable from float16. High resource use and slow. Not recommended for most users.",
+    "filename": "vicuna-33b.ggmlv3.q8_0.bin",
+    "url": "https://huggingface.co/localmodels/Vicuna-33B-v1.3-ggml/resolve/main/vicuna-33b.ggmlv3.q8_0.bin",
+    "id": "vicuna-33b.ggmlv3.q8_0"
+  },
+  {
+    "name": "WizardLM Uncensored 7B (2-bit k-quant)",
+    "description": "New k-quant method. Uses GGML_TYPE_Q6_K for half of the attention.wv and feed_forward.w2 tensors, else GGML_TYPE_Q4_K",
+    "filename": "wizardlm-7b-v1.0-uncensored.ggmlv3.q2_K.bin",
+    "url": "https://huggingface.co/localmodels/WizardLM-7B-v1.0-Uncensored-ggml/resolve/main/wizardlm-7b-v1.0-uncensored.ggmlv3.q2_K.bin",
+    "id": "wizardlm-7b-v1.0-uncensored.ggmlv3.q2_K"
+  },
+  {
+    "name": "WizardLM 13B (4-bit k-quant)",
+    "description": "New k-quant method. Uses GGML_TYPE_Q6_K for half of the attention.wv and feed_forward.w2 tensors, else GGML_TYPE_Q4_K",
+    "filename": "wizardlm-13b-v1.1.ggmlv3.q4_K_M.bin",
+    "url": "https://huggingface.co/localmodels/WizardLM-13B-v1.1-ggml/resolve/main/wizardlm-13b-v1.1.ggmlv3.q4_K_M.bin",
+    "id": "wizardlm-13b-v1.1.ggmlv3.q4_K_M"
+  },
+  {
+    "name": "WizardLM 13B (8-bit)",
+    "description": "Original quant method, 8-bit. Almost indistinguishable from float16. High resource use and slow. Not recommended for most users.",
+    "filename": "wizardlm-13b-v1.1.ggmlv3.q8_0.bin",
+    "url": "https://huggingface.co/localmodels/WizardLM-13B-v1.1-ggml/resolve/main/wizardlm-13b-v1.1.ggmlv3.q8_0.bin",
+    "id": "wizardlm-13b-v1.1.ggmlv3.q8_0"
+  },
+  {
+    "name": "WizardLM 30B (2-bit k-quant)",
+    "description": "New k-quant method. Uses GGML_TYPE_Q4_K for the attention.vw and feed_forward.w2 tensors, GGML_TYPE_Q2_K for the other tensors.",
+    "filename": "wizardlm-30b.ggmlv3.q2_K.bin",
+    "url": "https://huggingface.co/localmodels/WizardLM-30B-v1.0-ggml/resolve/main/wizardlm-30b.ggmlv3.q2_K.bin",
+    "id": "wizardlm-30b.ggmlv3.q2_K"
+  },
+  {
+    "name": "WizardLM 30B (8-bit)",
+    "description": "Original llama.cpp quant method, 8-bit. Almost indistinguishable from float16. High resource use and slow. Not recommended for most users.",
+    "filename": "wizardlm-30b.ggmlv3.q8_0.bin",
+    "url": "https://huggingface.co/localmodels/WizardLM-30B-v1.0-ggml/resolve/main/wizardlm-30b.ggmlv3.q8_0.bin",
+    "id": "wizardlm-30b.ggmlv3.q8_0"
+  }
+]
