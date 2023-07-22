@@ -5,7 +5,6 @@ mod config;
 mod events;
 mod models;
 
-mod backend;
 #[cfg(target_os = "macos")]
 mod titlebar;
 
