@@ -16,14 +16,34 @@ lazy_static! {
         serde_json::from_str(include_str!("../data/models.json")).unwrap();
     pub static ref AVAILABLE_ARCHITECTURES: Vec<Architecture> = vec![
         Architecture {
-            name: "Llama".to_string(),
+            name: "LLaMA".to_string(),
             id: "llama".to_string(),
             inner: llm::ModelArchitecture::Llama,
         },
         Architecture {
             name: "GPT-2".to_string(),
-            id: "gpt2".to_string(),
+            id: "gpt-2".to_string(),
             inner: llm::ModelArchitecture::Gpt2,
+        },
+        Architecture {
+            name: "GPT-J".to_string(),
+            id: "gpt-j".to_string(),
+            inner: llm::ModelArchitecture::GptJ,
+        },
+        Architecture {
+            name: "GPT-NeoX".to_string(),
+            id: "gpt-neo-x".to_string(),
+            inner: llm::ModelArchitecture::GptNeoX,
+        },
+        Architecture {
+            name: "MPT".to_string(),
+            id: "mpt".to_string(),
+            inner: llm::ModelArchitecture::Mpt,
+        },
+        Architecture {
+            name: "BLOOM".to_string(),
+            id: "bloom".to_string(),
+            inner: llm::ModelArchitecture::Bloom,
         },
     ];
 }
