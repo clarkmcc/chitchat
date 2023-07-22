@@ -251,11 +251,11 @@ fn main() {
 }
 
 use crate::events::Event;
+use serde_json::json;
+use tauri::{Runtime, Window};
+
 #[cfg(target_os = "macos")]
 use cocoa::appkit::{NSWindow, NSWindowStyleMask, NSWindowTitleVisibility};
-use serde_json::json;
-#[cfg(target_os = "macos")]
-use tauri::{Runtime, Window};
 #[cfg(target_os = "macos")]
 use tauri_plugin_aptabase::EventTracker;
 
