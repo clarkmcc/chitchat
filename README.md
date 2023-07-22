@@ -1,6 +1,7 @@
 # Chitchat
 
-<img width="1066" alt="image" src="https://github.com/clarkmcc/chitchat/assets/6639685/fcd58f1c-df3b-40d1-a138-8639cde0c684">
+[//]: # (<img width="1066" alt="image" src="https://github.com/clarkmcc/chitchat/assets/6639685/fcd58f1c-df3b-40d1-a138-8639cde0c684">)
+![](https://s12.gifyu.com/images/SWXTP.gif)
 
 A simple LLM chat front-end that makes it easy to find, download, and mess around with LLM models on your local machine.
 This is a very early-stage project, so expect bugs and missing features. On the bright side, here's what it supports
@@ -26,6 +27,14 @@ today:
 Currently, this project does not support providing your own models but this is a planned feature. If you want to add a
 publicly available model, just add an entry to the [models.json](./src-tauri/data/models.json) file. Models registered
 in the file will be available in the user interface for download.
+
+## Privacy and Analytics
+
+I'm using [Aptabase's Tauri integration](https://aptabase.com/blog/catching-panics-on-tauri-apps) to catch and report
+panics
+to me as well as other basic events like the number of model downloads. All statistics are anonymous and behind a cargo
+feature flag (`analytics`). While the release binaries ship with anonymous analytics, you can build from source without
+that flag to remove them.
 
 ## How does it work?
 
