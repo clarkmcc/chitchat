@@ -21,7 +21,7 @@ import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { invoke } from "@tauri-apps/api/tauri";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -45,7 +45,7 @@ export default function Sidebar({ models, architectures, refreshModels }) {
   const worldFreeze = useSelector((state) => state.messages.worldFreeze);
   const [errorMessage, setErrorMessage] = useState(null);
   const dispatch = useDispatch();
-  const { register, control, handleSubmit } = useForm({
+  const { register, control, watch, handleSubmit } = useForm({
     defaultValues: {
       modelFilename: models[0].filename,
       architecture: architectures[0].id,
@@ -57,6 +57,13 @@ export default function Sidebar({ models, architectures, refreshModels }) {
     },
     resolver: yupResolver(schema),
   });
+
+  // Selected modelFilename
+  const selectedFilename = watch("modelFilename");
+  const isCustomModel = useMemo(() => {
+    return models.find((m) => m.filename === selectedFilename)?.custom;
+  }, [selectedFilename]);
+
   const [progress, setProgress] = useState(null);
 
   function handleStart(data) {
@@ -136,10 +143,12 @@ export default function Sidebar({ models, architectures, refreshModels }) {
                   </IconButton>
                 </Grid>
               </Grid>
-              <FormHelperText>
-                The model will be downloaded to &nbsp;
-                <pre>~/.chitchat/models</pre>
-              </FormHelperText>
+              {!isCustomModel && (
+                <FormHelperText>
+                  The model will be downloaded to &nbsp;
+                  <pre>~/.chitchat/models</pre>
+                </FormHelperText>
+              )}
             </FormControl>
           </Grid>
 

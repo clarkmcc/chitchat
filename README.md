@@ -26,6 +26,34 @@ today:
   backends ([rustformers/llm](https://github.com/rustformers/llm), [llama.cpp](https://github.com/ggerganov/llama.cpp),
   etc.)
 
+## Custom Models
+
+All models are downloaded and loaded from the `~/.chitchat/models` directory. You can drop the `.bin` files in here.
+Currently, this project does not support multi-file models. Make sure to reload the models list after you add a new
+model to the directory.
+
+![](assets/model-reloading.png)
+
+To download models that aren't supported natively in this project, check out the following links.
+
+* [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/wiki/models/)
+* [huggingface.co/localmodels](https://huggingface.co/localmodels)
+
+## Troubleshooting
+
+### App Crashes
+
+#### Starting a model
+
+If the app crashes when you try and start a model, you may be trying to run the macOS 64-bit version through Rosetta.
+Rosetta will not work with this app. Make sure to use the arm binaries.
+
+#### Sending a prompt
+
+If the app crashes when you send a chat, try disabling the GPU, or try using a smaller model.
+I've [reported the issue](https://github.com/rustformers/llm/issues/383) upstream, and there appears to be some bugs in
+the metal GPU implementation.
+
 ## How does it work?
 
 This is just a Tauri frontend on the incredible [rustformers/llm](https://github.com/rustformers/llm) project. This
