@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod config;
+mod events;
 mod models;
 
 use crate::config::get_logs_dir;
@@ -23,18 +24,6 @@ struct ManagerState(Mutex<Option<ModelManager>>);
 struct Message {
     subject: String,
     message: String,
-}
-
-#[derive(Serialize, Clone, Debug)]
-struct ModelLoadEvent {
-    message: String,
-    progress: f32,
-}
-
-#[derive(Serialize, Clone, Debug)]
-struct PromptResponseEvent {
-    message: String,
-    done: bool,
 }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -65,19 +54,12 @@ async fn start(
     warmup_prompt: String,
 ) -> Result<(), String> {
     let (model, path) = get_local_model(&model, |downloaded, total, progress| {
-        window
-            .emit(
-                "model_loading",
-                ModelLoadEvent {
-                    message: format!(
-                        "Downloading model ({} / {})",
-                        ByteSize(downloaded),
-                        ByteSize(total)
-                    ),
-                    progress,
-                },
-            )
-            .unwrap()
+        let message = format!(
+            "Downloading model ({} / {})",
+            ByteSize(downloaded),
+            ByteSize(total)
+        );
+        Event::ModelLoading { message, progress }.send(&window);
     })
     .await
     .map_err(|err| err.to_string())?;
@@ -103,61 +85,42 @@ async fn start(
         tokenizer,
         params,
         |progress| match progress {
-            LoadProgress::HyperparametersLoaded => {
-                window
-                    .emit(
-                        "model_loading",
-                        ModelLoadEvent {
-                            message: "Hyperparameters loaded".to_string(),
-                            progress: 0.05,
-                        },
-                    )
-                    .unwrap();
+            LoadProgress::HyperparametersLoaded => Event::ModelLoading {
+                message: "Hyper-parameters loaded".to_string(),
+                progress: 0.05,
             }
-            LoadProgress::ContextSize { .. } => {
-                window
-                    .emit(
-                        "model_loading",
-                        ModelLoadEvent {
-                            message: "Context created".to_string(),
-                            progress: 0.1,
-                        },
-                    )
-                    .unwrap();
+            .send(&window),
+            LoadProgress::ContextSize { .. } => Event::ModelLoading {
+                message: "Context created".to_string(),
+                progress: 0.1,
             }
-            LoadProgress::LoraApplied { .. } => window
-                .emit(
-                    "model_loading",
-                    ModelLoadEvent {
-                        message: "LoRA applied".to_string(),
-                        progress: 0.2,
-                    },
-                )
-                .unwrap(),
+            .send(&window),
+            LoadProgress::LoraApplied { .. } => Event::ModelLoading {
+                message: "LoRA applied".to_string(),
+                progress: 0.15,
+            }
+            .send(&window),
             LoadProgress::TensorLoaded {
                 current_tensor,
                 tensor_count,
             } => {
-                let progress = 0.2 + 0.3 * (current_tensor as f32 / tensor_count as f32);
-                window
-                    .emit(
-                        "model_loading",
-                        ModelLoadEvent {
-                            message: "Context created".to_string(),
-                            progress,
-                        },
-                    )
-                    .unwrap();
+                // Once we start loading tensors, we're at 20%, once we're finished, we're at 50%
+                // and intermediate tensor loads should be linearly interpolated.
+                let start = 0.2;
+                let end = 0.5;
+                let progress =
+                    start + (end - start) * (current_tensor as f32 / tensor_count as f32);
+                Event::ModelLoading {
+                    message: format!("Loading tensor {}/{}", current_tensor, tensor_count),
+                    progress,
+                }
+                .send(&window)
             }
-            LoadProgress::Loaded { .. } => window
-                .emit(
-                    "model_loading",
-                    ModelLoadEvent {
-                        message: "Model loaded".to_string(),
-                        progress: 0.6,
-                    },
-                )
-                .unwrap(),
+            LoadProgress::Loaded { .. } => Event::ModelLoading {
+                message: "Model loaded".to_string(),
+                progress: 0.6,
+            }
+            .send(&window),
         },
     )
     .map_err(|e| format!("Error loading model: {}", e))?;
@@ -176,16 +139,11 @@ async fn start(
                     if progress < 0.99 {
                         progress += 0.001;
                     }
-                    window
-                        .emit(
-                            "model_loading",
-                            ModelLoadEvent {
-                                message: "Warming up the model".to_string(),
-                                progress,
-                            },
-                        )
-                        .unwrap();
-
+                    Event::ModelLoading {
+                        message: format!("Warming up model ({:.2}%)", progress * 100.0),
+                        progress,
+                    }
+                    .send(&window);
                     Ok::<llm::InferenceFeedback, Infallible>(llm::InferenceFeedback::Continue)
                 }
                 _ => Ok(llm::InferenceFeedback::Continue),
@@ -197,15 +155,11 @@ async fn start(
 
     *state.0.lock().unwrap() = Some(ModelManager { model, session });
 
-    window
-        .emit(
-            "model_loading",
-            ModelLoadEvent {
-                message: "Finished".to_string(),
-                progress: 1.0,
-            },
-        )
-        .unwrap();
+    Event::ModelLoading {
+        message: "Model loaded".to_string(),
+        progress: 1.0,
+    }
+    .send(&window);
 
     Ok(())
 }
@@ -220,61 +174,26 @@ pub struct PromptResponse {
 #[tauri::command]
 async fn prompt(
     window: Window,
-    mut state: tauri::State<'_, ManagerState>,
+    state: tauri::State<'_, ManagerState>,
     message: String,
 ) -> Result<PromptResponse, String> {
     info!("received prompt");
 
     let mut binding = state.0.lock().unwrap();
-    let manager = (*binding).as_mut().unwrap();
-    let mut response = String::new();
+    let manager: &mut ModelManager = (*binding).as_mut().unwrap();
     let message = format!("USER: {}\nSYSTEM: ", message);
-    let stats = manager
-        .session
-        .infer(
-            manager.model.as_ref(),
-            &mut rand::thread_rng(),
-            &llm::InferenceRequest {
-                prompt: message.as_str().into(),
-                parameters: &llm::InferenceParameters::default(),
-                play_back_previous_tokens: false,
-                maximum_token_count: None,
-            },
-            &mut Default::default(),
-            |res| match res {
-                InferenceResponse::InferredToken(t) => {
-                    response.push_str(&t);
-                    window
-                        .emit(
-                            "prompt_response",
-                            PromptResponseEvent {
-                                message: t,
-                                done: false,
-                            },
-                        )
-                        .unwrap();
-                    Ok::<llm::InferenceFeedback, Infallible>(llm::InferenceFeedback::Continue)
-                }
-                InferenceResponse::SnapshotToken(t) => {
-                    println!("Snapshot: {}", t);
-                    Ok::<llm::InferenceFeedback, Infallible>(llm::InferenceFeedback::Continue)
-                }
-                _ => Ok(llm::InferenceFeedback::Continue),
-            },
-        )
-        .map_err(|e| format!("Error inferring: {}", e))?;
+    let mut response = String::new();
 
-    info!(response = response, "prompt response");
-    window
-        .emit(
-            "prompt_response",
-            PromptResponseEvent {
-                message: String::default(),
-                done: true,
-            },
-        )
-        .unwrap();
+    let stats = manager.infer(&message, |tokens| {
+        response.push_str(&tokens);
+        Event::PromptResponse { message: tokens }.send(&window);
+    })?;
 
+    info!("finished prompt response");
+    Event::PromptResponse {
+        message: Default::default(),
+    }
+    .send(&window);
     Ok(PromptResponse {
         stats,
         message: response.replace(&message, ""),
@@ -293,8 +212,11 @@ fn main() {
         .init();
 
     info!("starting...");
-    tauri::Builder::default()
+
+    let builder = tauri::Builder::default()
         .setup(|app| {
+            #[cfg(feature = "analytics")]
+            app.track_event("app_started", None);
             let win = app.get_window("main").unwrap();
             #[cfg(debug_assertions)] // only include this code on debug builds
             {
@@ -312,13 +234,31 @@ fn main() {
             get_architectures,
             prompt,
         ])
-        .manage(ManagerState(Mutex::new(None)))
+        .manage(ManagerState(Mutex::new(None)));
+
+    #[cfg(feature = "analytics")]
+    let panic_hook = tauri_plugin_aptabase::Builder::new(env!("APTABASE_KEY"))
+        .with_panic_hook(Box::new(|client, info| {
+            client.track_event(
+                "panic",
+                Some(json!({
+                    // "build_timestamp": env!("VERGEN_BUILD_TIMESTAMP"),
+                })),
+            );
+        }))
+        .build();
+    #[cfg(feature = "analytics")]
+    let builder = builder.plugin(panic_hook);
+
+    builder
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
+use crate::events::Event;
 #[cfg(target_os = "macos")]
 use cocoa::appkit::{NSWindow, NSWindowStyleMask, NSWindowTitleVisibility};
+use serde_json::json;
 #[cfg(target_os = "macos")]
 use tauri::{Runtime, Window};
 #[cfg(target_os = "macos")]

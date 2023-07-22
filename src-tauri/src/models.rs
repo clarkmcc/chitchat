@@ -4,6 +4,7 @@ use futures_util::StreamExt;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::cmp::min;
+use std::convert::Infallible;
 use std::fs::create_dir_all;
 use std::io::Write;
 use std::path::PathBuf;
@@ -45,6 +46,41 @@ pub(crate) struct Architecture {
 pub(crate) struct ModelManager {
     pub(crate) model: Box<dyn llm::Model>,
     pub(crate) session: llm::InferenceSession,
+}
+
+impl ModelManager {
+    pub(crate) fn infer<F>(
+        &mut self,
+        prompt: &str,
+        mut callback: F,
+    ) -> Result<llm::InferenceStats, String>
+    where
+        F: FnMut(String),
+    {
+        self.session
+            .infer(
+                self.model.as_ref(),
+                &mut rand::thread_rng(),
+                &llm::InferenceRequest {
+                    prompt: prompt.into(),
+                    parameters: &llm::InferenceParameters::default(),
+                    play_back_previous_tokens: false,
+                    maximum_token_count: None,
+                },
+                &mut Default::default(),
+                |res| match res {
+                    llm::InferenceResponse::InferredToken(t) => {
+                        callback(t);
+                        Ok::<llm::InferenceFeedback, Infallible>(llm::InferenceFeedback::Continue)
+                    }
+                    llm::InferenceResponse::SnapshotToken(t) => {
+                        Ok::<llm::InferenceFeedback, Infallible>(llm::InferenceFeedback::Continue)
+                    }
+                    _ => Ok(llm::InferenceFeedback::Continue),
+                },
+            )
+            .map_err(|e| format!("Error inferring: {}", e))
+    }
 }
 
 #[tracing::instrument(skip(progress))]

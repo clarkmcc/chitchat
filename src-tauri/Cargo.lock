@@ -521,9 +521,11 @@ dependencies = [
  "serde_json",
  "tauri",
  "tauri-build",
+ "tauri-plugin-aptabase",
  "tracing",
  "tracing-appender",
  "tracing-subscriber",
+ "vergen",
 ]
 
 [[package]]
@@ -2443,6 +2445,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ntapi"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e8a3895c6391c39d7fe7ebc444a87eb2991b2a0bc718fdabd071eec617fc68e4"
+dependencies = [
+ "winapi",
+]
+
+[[package]]
 name = "nu-ansi-term"
 version = "0.46.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2511,6 +2522,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "num_threads"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2819ce041d2ee131036f4fc9d6ae7ae125a3a40e97ba64d04fe799ad9dabbb44"
+dependencies = [
+ "libc",
 ]
 
 [[package]]
@@ -3783,6 +3803,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "sys-locale"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ea0b9eefabb91675082b41eb94c3ecd91af7656caee3fb4961a07c0ec8c7ca6f"
+dependencies = [
+ "libc",
+ "windows-sys 0.45.0",
+]
+
+[[package]]
+name = "sysinfo"
+version = "0.29.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6b949f01f9c23823744b71e0060472ecbde578ef68cc2a9e46d114efd77c3034"
+dependencies = [
+ "cfg-if",
+ "core-foundation-sys",
+ "libc",
+ "ntapi",
+ "once_cell",
+ "winapi",
+]
+
+[[package]]
 name = "system-deps"
 version = "5.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3922,7 +3966,7 @@ dependencies = [
  "serialize-to-javascript",
  "shared_child",
  "state",
- "sys-locale",
+ "sys-locale 0.2.4",
  "tar",
  "tauri-macros",
  "tauri-runtime",
@@ -3993,6 +4037,25 @@ dependencies = [
  "syn 1.0.109",
  "tauri-codegen",
  "tauri-utils",
+]
+
+[[package]]
+name = "tauri-plugin-aptabase"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a0125e6321fdb8e65c1bb2e236d88438a9d8657c61b2ae4a17b57d5623c79326"
+dependencies = [
+ "log",
+ "os_info",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "sys-locale 0.3.0",
+ "tauri",
+ "thiserror",
+ "time",
+ "uuid",
+ "wry",
 ]
 
 [[package]]
@@ -4153,6 +4216,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "59e399c068f43a5d116fedaf73b203fa4f9c519f17e2b34f63221d3792f81446"
 dependencies = [
  "itoa 1.0.9",
+ "libc",
+ "num_threads",
  "serde",
  "time-core",
  "time-macros",
@@ -4510,6 +4575,19 @@ name = "vcpkg"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
+
+[[package]]
+name = "vergen"
+version = "8.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbc5ad0d9d26b2c49a5ab7da76c3e79d3ee37e7821799f8223fcb8f2f391a2e7"
+dependencies = [
+ "anyhow",
+ "rustc_version",
+ "rustversion",
+ "sysinfo",
+ "time",
+]
 
 [[package]]
 name = "version-compare"
