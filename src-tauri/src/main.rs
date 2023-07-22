@@ -223,6 +223,8 @@ fn main() {
                 // window.open_devtools();
                 // window.close_devtools();
             }
+
+            #[cfg(target_os = "macos")]
             win.set_transparent_titlebar(true, false);
 
             Ok(())
