@@ -5,8 +5,10 @@ mod config;
 mod events;
 mod models;
 
+mod backend;
 #[cfg(target_os = "macos")]
 mod titlebar;
+
 #[cfg(target_os = "macos")]
 use crate::titlebar::WindowExt;
 
@@ -15,8 +17,7 @@ use crate::events::Event;
 use crate::models::{get_local_model, Architecture, Model, ModelManager};
 use bytesize::ByteSize;
 use llm::{InferenceResponse, LoadProgress};
-use serde::{Deserialize, Serialize};
-use serde_json::json;
+use serde::Serialize;
 use std::convert::Infallible;
 use std::fs;
 use std::fs::create_dir_all;
@@ -181,8 +182,11 @@ async fn prompt(
 ) -> Result<PromptResponse, String> {
     info!("received prompt");
 
-    let mut binding = state.0.lock().unwrap();
-    let manager: &mut ModelManager = (*binding).as_mut().unwrap();
+    let mut binding = state
+        .0
+        .lock()
+        .map_err(|e| format!("Unable to lock the backend: {e}"))?;
+    let manager: &mut ModelManager = (*binding).as_mut().ok_or("Model not started".to_string())?;
     let message = format!("USER: {}\nSYSTEM: ", message);
     let mut response = String::new();
 

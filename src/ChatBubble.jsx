@@ -76,7 +76,13 @@ export default function ChatBubble({ isUser, message, loading, ...props }) {
 function Message({ message, loading, backgroundColor, color, ...props }) {
   return (
     <Box
-      sx={{ backgroundColor, outline: 0, border: 0, color }}
+      sx={{
+        backgroundColor,
+        outline: 0,
+        border: 0,
+        color,
+        whiteSpace: "pre-wrap",
+      }}
       className="break-words"
     >
       {message}
