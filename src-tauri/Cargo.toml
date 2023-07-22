@@ -1,10 +1,10 @@
 [package]
 name = "chitchat"
-version = "0.0.0"
+version = "0.1.0"
 description = "Chitchat"
 authors = ["Clark McCauley"]
-license = ""
-repository = ""
+license = "MIT"
+repository = "https://github.com/clarkmcc/chitchat"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
