@@ -14,17 +14,8 @@ jobs:
       matrix:
         platform:
           - macos-latest
-        #          - windows-latest
-        target:
-          - aarch64-apple-darwin
-          - x86_64-pc-windows-gnu
-        exclude:
-          - platform: windows-latest
-            target: aarch64-apple-darwin
-          - platform: macos-latest
-            target: x86_64-pc-windows-gnu
+          - windows-latest
     runs-on: ${{ matrix.platform }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -67,5 +58,4 @@ jobs:
           releaseBody: 'See the assets to download and install this version.'
           releaseDraft: true
           prerelease: false
-          #          args: -f analytics -t ${{ matrix.platform }}
-          args: -t ${{ matrix.target }}
+          args: -f analytics
