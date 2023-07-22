@@ -29,9 +29,11 @@ import {
   loadedModel,
   setWorldFreeze,
 } from "./state/messagesSlice.js";
+import IconButton from "@mui/joy/IconButton";
+import { Refresh } from "@mui/icons-material";
 
 const schema = yup.object({
-  model: yup.string().required(),
+  modelFilename: yup.string().required(),
   architecture: yup.string().required(),
   tokenizer: yup.string().required(),
   contextSize: yup.number().required(),
@@ -39,19 +41,19 @@ const schema = yup.object({
   warmupPrompt: yup.string(),
 });
 
-export default function Sidebar({ models, architectures }) {
+export default function Sidebar({ models, architectures, refreshModels }) {
   const worldFreeze = useSelector((state) => state.messages.worldFreeze);
   const [errorMessage, setErrorMessage] = useState(null);
   const dispatch = useDispatch();
   const { register, control, handleSubmit } = useForm({
     defaultValues: {
-      model: models[0].id,
+      modelFilename: models[0].filename,
       architecture: architectures[0].id,
       tokenizer: "embedded",
       contextSize: 2048,
       useGpu: true,
       warmupPrompt:
-        "You are a helpful assistant.\nSYSTEM: Hello, how may I help you today?\nUSER: What is the capital of France?\nSYSTEM: Paris is the capital of France.",
+        "You are a helpful assistant. You provide short and simple answers to questions. \nSYSTEM: Hello, how may I help you today?\nUSER: What is the capital of France?\nSYSTEM: Paris is the capital of France.",
     },
     resolver: yupResolver(schema),
   });
@@ -91,33 +93,49 @@ export default function Sidebar({ models, architectures }) {
           <Grid xs={12}>
             <FormControl>
               <FormLabel>Model</FormLabel>
-              <Controller
-                name="model"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    size="sm"
-                    onChange={(event, value) => field.onChange(value)}
-                  >
-                    {models.map((m) => (
-                      <ListItem>
-                        <Option key={m.id} value={m.id} label={m.name}>
-                          <Box
-                            component="span"
-                            sx={{ display: "block", maxWidth: "400px" }}
-                          >
-                            <Typography component="span">{m.name}</Typography>
-                            <Typography level="body4">
-                              {m.description}
-                            </Typography>
-                          </Box>
-                        </Option>
-                      </ListItem>
-                    ))}
-                  </Select>
-                )}
-              />
+              <Grid container columnSpacing={1}>
+                <Grid xs>
+                  <Controller
+                    name="modelFilename"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        size="sm"
+                        onChange={(event, value) => field.onChange(value)}
+                      >
+                        {models.map((m) => (
+                          <ListItem>
+                            <Option
+                              key={m.filename}
+                              value={m.filename}
+                              label={m.name}
+                            >
+                              <Box
+                                component="span"
+                                sx={{ display: "block", maxWidth: "400px" }}
+                              >
+                                <Typography component="span">
+                                  {m.name}
+                                </Typography>
+                                <Typography level="body4">
+                                  {m.description}
+                                </Typography>
+                              </Box>
+                            </Option>
+                          </ListItem>
+                        ))}
+                      </Select>
+                    )}
+                  />
+                </Grid>
+
+                <Grid xs="auto">
+                  <IconButton size="sm" color="neutral" onClick={refreshModels}>
+                    <Refresh />
+                  </IconButton>
+                </Grid>
+              </Grid>
               <FormHelperText>
                 The model will be downloaded to &nbsp;
                 <pre>~/.chitchat/models</pre>

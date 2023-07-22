@@ -28,8 +28,10 @@ use tracing_subscriber::EnvFilter;
 struct ManagerState(Mutex<Option<ModelManager>>);
 
 #[tauri::command]
-fn get_models() -> Vec<Model> {
-    models::AVAILABLE_MODELS.clone()
+async fn get_models() -> Result<Vec<Model>, String> {
+    models::get_available_models()
+        .await
+        .map_err(|err| err.to_string())
 }
 
 #[tauri::command]
@@ -41,14 +43,14 @@ fn get_architectures() -> Vec<Architecture> {
 async fn start(
     window: Window,
     state: tauri::State<'_, ManagerState>,
-    model: String,
+    model_filename: String,
     architecture: String,
     tokenizer: String,
     context_size: usize,
     use_gpu: bool,
     warmup_prompt: String,
 ) -> Result<(), String> {
-    let (model, path) = get_local_model(&model, |downloaded, total, progress| {
+    let path = get_local_model(&model_filename, |downloaded, total, progress| {
         let message = format!(
             "Downloading model ({} / {})",
             ByteSize(downloaded),
@@ -67,7 +69,11 @@ async fn start(
         _ => return Err("Tokenizer not supported".to_string()),
     };
 
-    info!(gpu = use_gpu, model = model.id, "starting model");
+    info!(
+        gpu = use_gpu,
+        model = path.to_str().unwrap_or_default(),
+        "starting model"
+    );
 
     let params = llm::ModelParameters {
         use_gpu,

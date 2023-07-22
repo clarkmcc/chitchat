@@ -1,12 +1,6 @@
 import { Box, CircularProgress, Input, useTheme } from "@mui/joy";
 import IconButton from "@mui/joy/IconButton";
-import {
-  ArrowCircleLeft,
-  ArrowCircleLeftOutlined,
-  ArrowLeft,
-  CheckCircle,
-  Send,
-} from "@mui/icons-material";
+import { ArrowCircleLeft, CheckCircle, Send } from "@mui/icons-material";
 import React, { useCallback, useRef, useState } from "react";
 import ChatBubble from "./ChatBubble.jsx";
 import { prompt } from "./api.js";

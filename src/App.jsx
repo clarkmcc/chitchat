@@ -16,11 +16,15 @@ function App() {
   const [setError, dismissError] = useError();
 
   useEffect(() => {
-    getModels().then(setModels).catch(setError);
+    loadModels();
   }, []);
   useEffect(() => {
     getArchitectures().then(setArchitectures).catch(setError);
   }, []);
+
+  function loadModels() {
+    getModels().then(setModels).catch(setError);
+  }
 
   return (
     <Box>
@@ -45,7 +49,11 @@ function App() {
       <Grid container>
         <Grid xs={6} className="overflow-hidden">
           {modelsLoaded && architecturesLoaded && (
-            <Sidebar models={models} architectures={architectures} />
+            <Sidebar
+              models={models}
+              architectures={architectures}
+              refreshModels={loadModels}
+            />
           )}
         </Grid>
         <Grid xs={6}>

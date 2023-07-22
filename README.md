@@ -9,6 +9,7 @@ today:
 
 * Easily download and run built-in LLM models -- don't worry about trying to figure out where to find a model and how to
   run it, just click a button and go!
+* Load your own models
 * Optional GPU support (nvidia and metal)
 * Statically compiled -- no dependencies
 * Cross-platform -- works on Windows, Linux, and macOS
@@ -16,17 +17,11 @@ today:
 
 ## Roadmap
 
-* Code cleanup and refactoring to make the project more collaborator-friendly
-* Support for custom models (provided as a URL or filesystem path)
-* Support for LoRAs
-* Support for custom tokenizers from HuggingFace
-* Cancelling inference midway through
-
-## Custom models
-
-Currently, this project does not support providing your own models but this is a planned feature. If you want to add a
-publicly available model, just add an entry to the [models.json](./src-tauri/data/models.json) file. Models registered
-in the file will be available in the user interface for download.
+[x] Support for custom models (provided as a URL or filesystem path)
+[] Code cleanup and refactoring to make the project more collaborator-friendly
+[] Support for LoRAs
+[] Support for custom tokenizers from HuggingFace
+[] Cancelling inference midway through
 
 ## Privacy and Analytics
 

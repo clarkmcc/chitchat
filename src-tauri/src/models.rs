@@ -5,15 +5,16 @@ use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::cmp::min;
 use std::convert::Infallible;
+use std::fs;
 use std::fs::create_dir_all;
 use std::io::Write;
 use std::path::PathBuf;
 use tracing::info;
 
 lazy_static! {
-    pub(crate) static ref AVAILABLE_MODELS: Vec<Model> =
+    pub static ref AVAILABLE_MODELS: Vec<Model> =
         serde_json::from_str(include_str!("../data/models.json")).unwrap();
-    pub(crate) static ref AVAILABLE_ARCHITECTURES: Vec<Architecture> = vec![
+    pub static ref AVAILABLE_ARCHITECTURES: Vec<Architecture> = vec![
         Architecture {
             name: "Llama".to_string(),
             id: "llama".to_string(),
@@ -27,33 +28,64 @@ lazy_static! {
     ];
 }
 
-#[derive(Serialize, Deserialize, Clone)]
-pub(crate) struct Model {
+/// Returns a list of all .bin files available in the models directory
+/// (with associated metadata if we have them in our models.json file)
+/// and if the model is a model that we don't know about, then we return
+/// it first.
+pub async fn get_available_models() -> Result<Vec<Model>> {
+    let dir = get_models_dir()?;
+    let mut known_models = AVAILABLE_MODELS.clone();
+    let mut models = fs::read_dir(dir)?
+        .filter_map(|file| {
+            if let Ok(file) = file {
+                if let Some(filename) = file.file_name().to_str() {
+                    if filename.ends_with(".bin")
+                        && known_models
+                            .iter()
+                            .find(|m| m.filename.as_str() == filename)
+                            .is_none()
+                    {
+                        return Some(Model {
+                            name: filename.to_string(),
+                            filename: filename.to_string(),
+                            custom: true,
+                            ..Default::default()
+                        });
+                    }
+                }
+            }
+            None
+        })
+        .collect::<Vec<_>>();
+    models.append(&mut known_models);
+    models.sort_by(|a, b| b.custom.cmp(&a.custom));
+    Ok(models)
+}
+
+#[derive(Serialize, Deserialize, Clone, Default)]
+pub struct Model {
     name: String,
     url: String,
-    pub(crate) filename: String,
-    pub(crate) description: String,
-    pub(crate) id: String,
+    #[serde(default)]
+    pub custom: bool,
+    pub filename: String,
+    pub description: String,
 }
 
 #[derive(Serialize, Clone)]
-pub(crate) struct Architecture {
+pub struct Architecture {
     name: String,
-    pub(crate) id: String,
-    pub(crate) inner: llm::ModelArchitecture,
+    pub id: String,
+    pub inner: llm::ModelArchitecture,
 }
 
-pub(crate) struct ModelManager {
-    pub(crate) model: Box<dyn llm::Model>,
-    pub(crate) session: llm::InferenceSession,
+pub struct ModelManager {
+    pub model: Box<dyn llm::Model>,
+    pub session: llm::InferenceSession,
 }
 
 impl ModelManager {
-    pub(crate) fn infer<F>(
-        &mut self,
-        prompt: &str,
-        mut callback: F,
-    ) -> Result<llm::InferenceStats, String>
+    pub fn infer<F>(&mut self, prompt: &str, mut callback: F) -> Result<llm::InferenceStats, String>
     where
         F: FnMut(String),
     {
@@ -116,18 +148,18 @@ where
 }
 
 #[tracing::instrument(skip(progress))]
-pub(crate) async fn get_local_model<F>(id: &str, progress: F) -> Result<(Model, PathBuf)>
+pub async fn get_local_model<F>(filename: &str, progress: F) -> Result<PathBuf>
 where
     F: Fn(u64, u64, f32),
 {
-    let model = AVAILABLE_MODELS
-        .iter()
-        .find(|m| m.id == id)
-        .ok_or(anyhow::anyhow!("Model not found"))?;
     let models_dir = get_models_dir()?;
-    if !models_dir.join(&model.filename).exists() {
+    if !models_dir.join(filename).exists() {
+        let model = AVAILABLE_MODELS
+            .iter()
+            .find(|m| m.filename == filename)
+            .ok_or(anyhow::anyhow!("Model not found"))?;
         download_file(&model.url, &models_dir, &model.filename, progress).await?;
         info!(filename = model.filename, "finished downloading model");
     }
-    Ok((model.clone(), models_dir.join(&model.filename)))
+    Ok(models_dir.join(filename))
 }
