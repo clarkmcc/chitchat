@@ -317,8 +317,12 @@ fn main() {
         .expect("error while running tauri application");
 }
 
+#[cfg(target_os = "macos")]
 use cocoa::appkit::{NSWindow, NSWindowStyleMask, NSWindowTitleVisibility};
+#[cfg(target_os = "macos")]
 use tauri::{Runtime, Window};
+#[cfg(target_os = "macos")]
+use tauri_plugin_aptabase::EventTracker;
 
 pub trait WindowExt {
     #[cfg(target_os = "macos")]

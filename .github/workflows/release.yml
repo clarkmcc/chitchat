@@ -15,7 +15,14 @@ jobs:
         platform:
           - macos-latest
           - windows-latest
-    #          - ubuntu-20.04
+        target:
+          - aarch64-apple-darwin
+          - x86_64-pc-windows-gnu
+        exclude:
+          - platform: windows-latest
+            target: aarch64-apple-darwin
+          - platform: macos-latest
+            target: x86_64-pc-windows-gnu
     runs-on: ${{ matrix.platform }}
 
     steps:
@@ -31,6 +38,8 @@ jobs:
 
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
@@ -58,3 +67,4 @@ jobs:
           releaseBody: 'See the assets to download and install this version.'
           releaseDraft: true
           prerelease: false
+          args: --features='analytics' --target ${{ matrix.platform }}

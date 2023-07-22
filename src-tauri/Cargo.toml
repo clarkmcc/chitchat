@@ -27,6 +27,8 @@ bytesize = { version = "1.1.0", features = ["serde"] }
 tracing = "0.1.37"
 tracing-subscriber = { version = "0.3.17", features = ["json", "fmt", "env-filter"] }
 tracing-appender = "0.2.2"
+
+#[cfg(target_os = "macos")]
 cocoa = "0.24.1"
 
 [features]
