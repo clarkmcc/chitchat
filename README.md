@@ -1,6 +1,6 @@
 # Chitchat
 
-<img alt="image" src="https://s12.gifyu.com/images/SWXTP.gif">
+![](https://media.githubusercontent.com/media/clarkmcc/chitchat/main/assets/demo.gif)
 
 A simple LLM chat front-end that makes it easy to find, download, and mess around with LLM models on your local machine.
 This is a very early-stage project, so expect bugs and missing features. On the bright side, here's what it supports
