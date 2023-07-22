@@ -239,12 +239,7 @@ fn main() {
     #[cfg(feature = "analytics")]
     let panic_hook = tauri_plugin_aptabase::Builder::new(env!("APTABASE_KEY"))
         .with_panic_hook(Box::new(|client, info| {
-            client.track_event(
-                "panic",
-                Some(json!({
-                    // "build_timestamp": env!("VERGEN_BUILD_TIMESTAMP"),
-                })),
-            );
+            client.track_event("panic", Some(json!({})));
         }))
         .build();
     #[cfg(feature = "analytics")]

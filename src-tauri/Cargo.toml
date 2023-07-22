@@ -6,20 +6,17 @@ authors = ["you"]
 license = ""
 repository = ""
 edition = "2021"
-build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
 tauri-build = { version = "1.4", features = [] }
-vergen = { version = "8.0.0", features = ["build", "cargo", "git", "gitcl", "rustc", "si"] }
 
 [dependencies]
 tauri = { version = "1.4", features = ["api-all", "wry"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 home = "0.5.5"
-llm = { git = "https://github.com/rustformers/llm", branch = "main", features = ["metal"] }
 rand = "0.8.5"
 lazy_static = "1.4.0"
 anyhow = "1.0.71"
@@ -30,8 +27,13 @@ tracing = "0.1.37"
 tracing-subscriber = { version = "0.3.17", features = ["json", "fmt", "env-filter"] }
 tracing-appender = "0.2.2"
 tauri-plugin-aptabase = "0.3.1"
-#[cfg(target_os = "macos")]
+
+[target.'cfg(target_os = "macos")'.dependencies]
+llm = { git = "https://github.com/rustformers/llm", branch = "main", features = ["metal"] }
 cocoa = "0.24.1"
+
+[target.'cfg(not(target_os = "macos"))'.dependencies]
+llm = { git = "https://github.com/rustformers/llm", branch = "main", features = [] }
 
 [features]
 analytics = []
