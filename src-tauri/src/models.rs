@@ -183,3 +183,23 @@ where
     }
     Ok(models_dir.join(filename))
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::models::AVAILABLE_MODELS;
+
+    #[test]
+    fn test_model_existence() {
+        for model in AVAILABLE_MODELS.iter() {
+            println!("Testing {} ({})", model.name, model.url);
+            let response = reqwest::blocking::get(&model.url).expect("Failed to get model");
+            assert!(
+                response.status().is_success(),
+                "Failed to get {} ({}): {}",
+                model.name,
+                model.url,
+                response.status().as_str()
+            );
+        }
+    }
+}
