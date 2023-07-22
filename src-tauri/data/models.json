@@ -1,5 +1,59 @@
 [
   {
+    "name": "LLaMA 7B (2-bit k-quant)",
+    "description": "New k-quant method. Uses GGML_TYPE_Q4_K for the attention.vw and feed_forward.w2 tensors, GGML_TYPE_Q2_K for the other tensors.",
+    "filename": "llama-7b.ggmlv3.q2_K.bin",
+    "url": "https://huggingface.co/localmodels/LLaMA-7B-ggml/resolve/main/llama-7b.ggmlv3.q2_K.bin"
+  },
+  {
+    "name": "LLaMA 7B (4-bit k-quant)",
+    "description": "New k-quant method. Uses GGML_TYPE_Q6_K for half of the attention.wv and feed_forward.w2 tensors, else GGML_TYPE_Q4_K",
+    "filename": "llama-7b.ggmlv3.q4_K_M.bin",
+    "url": "https://huggingface.co/localmodels/LLaMA-7B-ggml/resolve/main/llama-7b.ggmlv3.q4_K.bin"
+  },
+  {
+    "name": "LLaMA 7B (8-bit)",
+    "description": "Original quant method, 8-bit. Almost indistinguishable from float16. High resource use and slow. Not recommended for most users.",
+    "filename": "llama-7b.ggmlv3.q8_0.bin",
+    "url": "https://huggingface.co/localmodels/LLaMA-7B-ggml/resolve/main/llama-7b.ggmlv3.q8_0.bin"
+  },
+  {
+    "name": "LLaMA 13B (2-bit k-quant)",
+    "description": "New k-quant method. Uses GGML_TYPE_Q4_K for the attention.vw and feed_forward.w2 tensors, GGML_TYPE_Q2_K for the other tensors.",
+    "filename": "llama-13b.ggmlv3.q2_K.bin",
+    "url": "https://huggingface.co/localmodels/LLaMA-13B-ggml/resolve/main/llama-13b.ggmlv3.q2_K.bin"
+  },
+  {
+    "name": "LLaMA 13B (4-bit k-quant)",
+    "description": "New k-quant method. Uses GGML_TYPE_Q6_K for half of the attention.wv and feed_forward.w2 tensors, else GGML_TYPE_Q4_K",
+    "filename": "llama-13b.ggmlv3.q4_K_M.bin",
+    "url": "https://huggingface.co/localmodels/LLaMA-13B-ggml/resolve/main/llama-13b.ggmlv3.q4_K_M.bin"
+  },
+  {
+    "name": "LLaMA 13B (8-bit)",
+    "description": "Original quant method, 8-bit. Almost indistinguishable from float16. High resource use and slow. Not recommended for most users.",
+    "filename": "llama-13b.ggmlv3.q8_0.bin",
+    "url": "https://huggingface.co/localmodels/LLaMA-13B-ggml/resolve/main/llama-13b.ggmlv3.q8_0.bin"
+  },
+  {
+    "name": "LLaMA 2 7B Chat (2-bit k-quant)",
+    "description": "New k-quant method. Uses GGML_TYPE_Q4_K for the attention.vw and feed_forward.w2 tensors, GGML_TYPE_Q2_K for the other tensors.",
+    "filename": "llama-2-7b-chat.ggmlv3.q2_K.bin",
+    "url": "https://huggingface.co/localmodels/Llama-2-7B-Chat-ggml/resolve/main/llama-2-7b-chat.ggmlv3.q2_K.bin"
+  },
+  {
+    "name": "LLaMA 2 7B Chat (4-bit k-quant)",
+    "description": "New k-quant method. Uses GGML_TYPE_Q6_K for half of the attention.wv and feed_forward.w2 tensors, else GGML_TYPE_Q4_K",
+    "filename": "llama-2-7b-chat.ggmlv3.q4_K_M.bin",
+    "url": "https://huggingface.co/localmodels/Llama-2-7B-Chat-ggml/resolve/main/llama-2-7b-chat.ggmlv3.q4_K_M.bin"
+  },
+  {
+    "name": "LLaMA 2 7B Chat (8-bit)",
+    "description": "Original quant method, 8-bit. Almost indistinguishable from float16. High resource use and slow. Not recommended for most users.",
+    "filename": "llama-2-7b-chat.ggmlv3.q8_0.bin",
+    "url": "https://huggingface.co/localmodels/Llama-2-7B-Chat-ggml/resolve/main/llama-2-7b-chat.ggmlv3.q8_0.bin"
+  },
+  {
     "name": "Vicuna 7B (2-bit k-quant)",
     "description": "New k-quant method. Uses GGML_TYPE_Q4_K for the attention.vw and feed_forward.w2 tensors, GGML_TYPE_Q2_K for the other tensors.",
     "filename": "vicuna-7b-v1.3.ggmlv3.q2_K.bin",
