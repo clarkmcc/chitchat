@@ -23,14 +23,6 @@ today:
 [] Support for custom tokenizers from HuggingFace
 [] Cancelling inference midway through
 
-## Privacy and Analytics
-
-I'm using [Aptabase's Tauri integration](https://aptabase.com/blog/catching-panics-on-tauri-apps) to catch and report
-panics
-to me as well as other basic events like the number of model downloads. All statistics are anonymous and behind a cargo
-feature flag (`analytics`). While the release binaries ship with anonymous analytics, you can build from source without
-that flag to remove them.
-
 ## How does it work?
 
 This is just a Tauri frontend on the incredible [rustformers/llm](https://github.com/rustformers/llm) project. This

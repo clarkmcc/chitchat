@@ -196,8 +196,6 @@ async fn prompt(
     }
     .send(&window);
 
-    println!("{:?}", stats);
-
     Ok(PromptResponse {
         stats,
         message: response.replace(&message, ""),
@@ -236,14 +234,14 @@ fn main() {
         ])
         .manage(ManagerState(Mutex::new(None)));
 
-    #[cfg(feature = "analytics")]
-    let panic_hook = tauri_plugin_aptabase::Builder::new(env!("APTABASE_KEY"))
-        .with_panic_hook(Box::new(|client, info| {
-            client.track_event("panic", Some(json!({})));
-        }))
-        .build();
-    #[cfg(feature = "analytics")]
-    let builder = builder.plugin(panic_hook);
+    // #[cfg(feature = "analytics")]
+    // let panic_hook = tauri_plugin_aptabase::Builder::new(env!("APTABASE_KEY"))
+    //     .with_panic_hook(Box::new(|client, info| {
+    //         client.track_event("panic", Some(json!({})));
+    //     }))
+    //     .build();
+    // #[cfg(feature = "analytics")]
+    // let builder = builder.plugin(panic_hook);
 
     builder
         .run(tauri::generate_context!())
