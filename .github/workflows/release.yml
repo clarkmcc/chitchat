@@ -68,4 +68,4 @@ jobs:
           releaseDraft: true
           prerelease: false
           #          args: -f analytics -t ${{ matrix.platform }}
-          args: -t ${{ matrix.platform }}
+          args: -t ${{ matrix.target }}
