@@ -17,6 +17,7 @@ import {
   finishLastMessage,
   setWorldFreeze,
 } from "./state/messagesSlice.js";
+import { isWindows, useError } from "./utilities.js";
 
 export default function Chat({}) {
   const endOfMessagesRef = useRef(null);
@@ -27,19 +28,22 @@ export default function Chat({}) {
   const pendingMessage = useSelector((state) => state.messages.pendingMessage);
   const worldFreeze = useSelector((state) => state.messages.worldFreeze);
   const dispatch = useDispatch();
-  const modelLoaded = useSelector((state) => state.messages.modelLoaded);
-  const theme = useTheme();
 
   const [message, setMessage] = useState("");
+  const [setError] = useError();
 
   const handleSend = useCallback(async () => {
     dispatch(setWorldFreeze(true));
     endOfMessagesRef?.current?.scrollIntoView({ behavior: "smooth" });
 
     createUserMessage(message);
-    await prompt(message, (tokens) => {
-      dispatch(addPendingMessageTokens(tokens));
-    });
+    try {
+      await prompt(message, (tokens) => {
+        dispatch(addPendingMessageTokens(tokens));
+      });
+    } catch (e) {
+      setError(e);
+    }
 
     dispatch(finishLastMessage());
     dispatch(setWorldFreeze(false));
@@ -51,10 +55,14 @@ export default function Chat({}) {
   }
 
   const handleSendKeyDown = async (event) => {
-    if (event.keyCode === 13 && event.metaKey) {
+    if (event.keyCode === 13 && (event.metaKey || event.ctrlKey)) {
       await handleSend();
     }
   };
+
+  const placeholder = isWindows()
+    ? "CTRL + Enter to send"
+    : "⌘ + Enter to send";
 
   return (
     <Box className="relative" sx={{ width: "100%" }}>
@@ -79,7 +87,7 @@ export default function Chat({}) {
           disabled={worldFreeze}
           onChange={(e) => setMessage(e.target.value)}
           size="lg"
-          placeholder="⌘ + Enter to send"
+          placeholder={placeholder}
           fullWidth={true}
           onKeyDown={handleSendKeyDown}
           endDecorator={

@@ -5,32 +5,27 @@ mod config;
 mod events;
 mod models;
 
+#[cfg(target_os = "macos")]
+mod titlebar;
+
 use crate::config::get_logs_dir;
+use crate::events::Event;
 use crate::models::{get_local_model, Architecture, Model, ModelManager};
+use crate::titlebar::WindowExt;
 use bytesize::ByteSize;
 use llm::{InferenceResponse, LoadProgress};
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::convert::Infallible;
 use std::fs;
 use std::fs::create_dir_all;
 use std::sync::Mutex;
-use tauri::Manager;
+use tauri::{Manager, Window};
+use tauri_plugin_aptabase::EventTracker;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
 struct ManagerState(Mutex<Option<ModelManager>>);
-
-#[derive(Deserialize, Debug)]
-struct Message {
-    subject: String,
-    message: String,
-}
-
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
 
 #[tauri::command]
 fn get_models() -> Vec<Model> {
@@ -45,7 +40,7 @@ fn get_architectures() -> Vec<Architecture> {
 #[tauri::command]
 async fn start(
     window: Window,
-    mut state: tauri::State<'_, ManagerState>,
+    state: tauri::State<'_, ManagerState>,
     model: String,
     architecture: String,
     tokenizer: String,
@@ -194,6 +189,9 @@ async fn prompt(
         message: Default::default(),
     }
     .send(&window);
+
+    println!("{:?}", stats);
+
     Ok(PromptResponse {
         stats,
         message: response.replace(&message, ""),
@@ -215,22 +213,16 @@ fn main() {
 
     let builder = tauri::Builder::default()
         .setup(|app| {
+            let win = app.get_window("main").unwrap();
+
             #[cfg(feature = "analytics")]
             app.track_event("app_started", None);
-            let win = app.get_window("main").unwrap();
-            #[cfg(debug_assertions)] // only include this code on debug builds
-            {
-                // window.open_devtools();
-                // window.close_devtools();
-            }
 
             #[cfg(target_os = "macos")]
             win.set_transparent_titlebar(true, false);
-
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            greet,
             start,
             get_models,
             get_architectures,
@@ -250,57 +242,4 @@ fn main() {
     builder
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-}
-
-use crate::events::Event;
-use serde_json::json;
-use tauri::{Runtime, Window};
-
-#[cfg(target_os = "macos")]
-use cocoa::appkit::{NSWindow, NSWindowStyleMask, NSWindowTitleVisibility};
-#[cfg(target_os = "macos")]
-use tauri_plugin_aptabase::EventTracker;
-
-pub trait WindowExt {
-    #[cfg(target_os = "macos")]
-    fn set_transparent_titlebar(&self, title_transparent: bool, remove_toolbar: bool);
-}
-
-impl<R: Runtime> WindowExt for Window<R> {
-    #[cfg(target_os = "macos")]
-    fn set_transparent_titlebar(&self, title_transparent: bool, remove_tool_bar: bool) {
-        unsafe {
-            let id = self.ns_window().unwrap() as cocoa::base::id;
-            NSWindow::setTitlebarAppearsTransparent_(id, cocoa::base::YES);
-            let mut style_mask = id.styleMask();
-            style_mask.set(
-                NSWindowStyleMask::NSFullSizeContentViewWindowMask,
-                title_transparent,
-            );
-
-            if remove_tool_bar {
-                style_mask.remove(
-                    NSWindowStyleMask::NSClosableWindowMask
-                        | NSWindowStyleMask::NSMiniaturizableWindowMask
-                        | NSWindowStyleMask::NSResizableWindowMask,
-                );
-            }
-
-            id.setStyleMask_(style_mask);
-            id.setMovable_(cocoa::base::YES);
-            id.setMovableByWindowBackground_(cocoa::base::YES);
-
-            id.setTitleVisibility_(if title_transparent {
-                NSWindowTitleVisibility::NSWindowTitleHidden
-            } else {
-                NSWindowTitleVisibility::NSWindowTitleVisible
-            });
-
-            id.setTitlebarAppearsTransparent_(if title_transparent {
-                cocoa::base::YES
-            } else {
-                cocoa::base::NO
-            });
-        }
-    }
 }

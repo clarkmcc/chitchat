@@ -1,25 +1,47 @@
 import React, { useEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
-import { Box, Grid } from "@mui/joy";
+import { Alert, Box, Button, Grid } from "@mui/joy";
 import Sidebar from "./Sidebar.jsx";
 import Chat from "./Chat.jsx";
+import { getArchitectures, getModels } from "./api.js";
+import { useSelector } from "react-redux";
+import { useError } from "./utilities.js";
 
 function App() {
   const [models, setModels] = useState([]);
   const modelsLoaded = models.length > 0;
   const [architectures, setArchitectures] = useState([]);
   const architecturesLoaded = architectures.length > 0;
+  const error = useSelector((state) => state.app.error);
+  const [setError, dismissError] = useError();
 
   useEffect(() => {
-    invoke("get_models").then(setModels).catch(console.error);
-  });
+    getModels().then(setModels).catch(setError);
+  }, []);
   useEffect(() => {
-    invoke("get_architectures").then(setArchitectures).catch(console.error);
-  });
+    getArchitectures().then(setArchitectures).catch(setError);
+  }, []);
 
   return (
     <Box>
+      {error && (
+        <Alert
+          color="danger"
+          endDecorator={
+            <Button
+              size="sm"
+              variant="soft"
+              color="danger"
+              onClick={dismissError}
+            >
+              Dismiss
+            </Button>
+          }
+        >
+          <Box className="pt-5">Error: {JSON.stringify(error)}</Box>
+        </Alert>
+      )}
+
       <Grid container>
         <Grid xs={6} className="overflow-hidden">
           {modelsLoaded && architecturesLoaded && (
