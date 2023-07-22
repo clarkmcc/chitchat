@@ -15,6 +15,14 @@ today:
 * Warm-up prompting
 * Chat-style context
 
+## Downloads
+
+See [releases](https://github.com/clarkmcc/chitchat/releases) for more downloads.
+
+- [macOS (M1)](https://github.com/clarkmcc/chitchat/releases/download/v0.1.0/Chitchat_0.1.0_m1_macos.app.zip)
+- [macOS (Intel)](https://github.com/clarkmcc/chitchat/releases/download/v0.1.0/Chitchat_0.1.0_x64.dmg)
+- [Windows (64-bit)](https://github.com/clarkmcc/chitchat/releases/download/v0.1.0/Chitchat_0.1.0_x64.msi)
+
 ## Roadmap
 
 - [x] Support for custom models (provided as a URL or filesystem path)
