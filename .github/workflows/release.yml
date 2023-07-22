@@ -67,4 +67,5 @@ jobs:
           releaseBody: 'See the assets to download and install this version.'
           releaseDraft: true
           prerelease: false
-          args: --features='analytics' --target ${{ matrix.platform }}
+          #          args: -f analytics -t ${{ matrix.platform }}
+          args: -t ${{ matrix.platform }}
