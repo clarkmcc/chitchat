@@ -7,11 +7,12 @@ mod models;
 
 #[cfg(target_os = "macos")]
 mod titlebar;
+#[cfg(target_os = "macos")]
+use crate::titlebar::WindowExt;
 
 use crate::config::get_logs_dir;
 use crate::events::Event;
 use crate::models::{get_local_model, Architecture, Model, ModelManager};
-use crate::titlebar::WindowExt;
 use bytesize::ByteSize;
 use llm::{InferenceResponse, LoadProgress};
 use serde::{Deserialize, Serialize};
