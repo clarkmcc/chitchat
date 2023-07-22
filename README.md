@@ -29,10 +29,7 @@ today:
 ## Custom Models
 
 All models are downloaded and loaded from the `~/.chitchat/models` directory. You can drop the `.bin` files in here.
-Currently, this project does not support multi-file models. Make sure to reload the models list after you add a new
-model to the directory.
-
-![](assets/model-reloading.png)
+Currently, this project does not support multi-file models
 
 To download models that aren't supported natively in this project, check out the following links.
 
