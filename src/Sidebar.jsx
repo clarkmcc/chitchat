@@ -82,18 +82,16 @@ export default function Sidebar({ models, architectures, refreshModels }) {
 
   function handleErrors(error) {
     console.error(error);
+    setErrorMessage(JSON.stringify(error));
   }
 
   return (
-    <Box className="h-full relative overflow-hidden" sx={{ width: "100%" }}>
+    <>
       <Sheet
-        className="pt-8 p-4 overflow-y-hidden"
+        className="pt-8 p-4 overflow-auto flex-grow"
         sx={{
-          width: "100%",
-          height: "100%",
           borderRight: "1px solid",
           borderColor: "divider",
-          "-webkit-scrollbar": { display: "none" },
         }}
       >
         <Grid container rowSpacing={3} columnSpacing={2}>
@@ -242,32 +240,39 @@ export default function Sidebar({ models, architectures, refreshModels }) {
           </Grid>
         </Grid>
       </Sheet>
-      <Box className="absolute bottom-0" sx={{ width: "100%" }} p={2}>
-        {progress && progress.progress < 1 && (
-          <FormControl className="mb-2">
-            <LinearProgress
-              value={progress.progress * 100}
-              determinate={true}
-            />
-            <FormHelperText>{progress.message}</FormHelperText>
-          </FormControl>
-        )}
-        {errorMessage && (
-          <Box className="mb-2">
-            <Alert color="danger">{errorMessage}</Alert>
-          </Box>
-        )}
+      <Sheet
+        sx={{
+          borderRight: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        <Box className="sticky bottom-0" p={2}>
+          {progress && progress.progress < 1 && (
+            <FormControl className="mb-2">
+              <LinearProgress
+                value={progress.progress * 100}
+                determinate={true}
+              />
+              <FormHelperText>{progress.message}</FormHelperText>
+            </FormControl>
+          )}
+          {errorMessage && (
+            <Box className="mb-2">
+              <Alert color="danger">{errorMessage}</Alert>
+            </Box>
+          )}
 
-        <Button
-          loading={worldFreeze}
-          fullWidth={true}
-          variant="solid"
-          size="lg"
-          onClick={handleSubmit(handleStart, handleErrors)}
-        >
-          Start
-        </Button>
-      </Box>
-    </Box>
+          <Button
+            loading={worldFreeze}
+            fullWidth={true}
+            variant="solid"
+            size="lg"
+            onClick={handleSubmit(handleStart, handleErrors)}
+          >
+            Start
+          </Button>
+        </Box>
+      </Sheet>
+    </>
   );
 }

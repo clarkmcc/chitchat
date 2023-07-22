@@ -27,9 +27,10 @@ function App() {
   }
 
   return (
-    <Box>
+    <>
       {error && (
         <Alert
+          className="top-0 sticky"
           color="danger"
           endDecorator={
             <Button
@@ -45,9 +46,8 @@ function App() {
           <Box className="pt-5">Error: {JSON.stringify(error)}</Box>
         </Alert>
       )}
-
-      <Grid container>
-        <Grid xs={6} className="overflow-hidden">
+      <Box className="h-screen flex overflow-hidden">
+        <div className="w-1/2 flex flex-col h-full overflow-hidden">
           {modelsLoaded && architecturesLoaded && (
             <Sidebar
               models={models}
@@ -55,12 +55,12 @@ function App() {
               refreshModels={loadModels}
             />
           )}
-        </Grid>
-        <Grid xs={6}>
+        </div>
+        <div className="w-1/2 flex flex-col h-full overflow-hidden">
           <Chat />
-        </Grid>
-      </Grid>
-    </Box>
+        </div>
+      </Box>
+    </>
   );
 }
 

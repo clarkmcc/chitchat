@@ -28,7 +28,7 @@ export default function Chat({}) {
 
   const handleSend = useCallback(async () => {
     dispatch(setWorldFreeze(true));
-    endOfMessagesRef?.current?.scrollIntoView({ behavior: "smooth" });
+    scrollToBottom();
 
     createUserMessage(message);
     try {
@@ -48,6 +48,10 @@ export default function Chat({}) {
     dispatch(addMessage({ isUser: true, finished: true, message }));
   }
 
+  function scrollToBottom() {
+    endOfMessagesRef?.current?.scrollIntoView({ behavior: "smooth" });
+  }
+
   const handleSendKeyDown = async (event) => {
     if (event.keyCode === 13 && (event.metaKey || event.ctrlKey)) {
       await handleSend();
@@ -59,23 +63,32 @@ export default function Chat({}) {
     : "⌘ + Enter to send";
 
   return (
-    <Box className="relative" sx={{ width: "100%" }}>
+    <>
       <Box
-        className={`p-4 space-y-4 pb-16 ${
-          messages.length === 0 ? "flex" : ""
-        } `}
-        sx={{ height: "100vh", "-webkit-scrollbar": { display: "none" } }}
+        className={`overflow-auto flex-grow ${
+          messages.length === 0 ? "flex items-center justify-center" : ""
+        }`}
       >
-        {messages.length === 0 && <ModelLoadingSplash />}
-        {messages.map((m, i) => (
-          <ChatBubble key={i} isUser={m.isUser} message={m.message} />
-        ))}
-        {messageInProgress && (
-          <ChatBubble isUser={false} message={pendingMessage} loading={true} />
-        )}
-        <div ref={endOfMessagesRef} />
+        <Box
+          className={`p-4 space-y-4 flex-grow ${
+            messages.length === 0 ? "flex" : ""
+          } `}
+        >
+          {messages.length === 0 && <ModelLoadingSplash />}
+          {messages.map((m, i) => (
+            <ChatBubble key={i} isUser={m.isUser} message={m.message} />
+          ))}
+          {messageInProgress && (
+            <ChatBubble
+              isUser={false}
+              message={pendingMessage}
+              loading={true}
+            />
+          )}
+          <div ref={endOfMessagesRef} />
+        </Box>
       </Box>
-      <Box className="absolute bottom-0" sx={{ width: "100%" }} p={2}>
+      <Box className="sticky bottom-0" p={2}>
         <Input
           value={message}
           disabled={worldFreeze}
@@ -95,7 +108,7 @@ export default function Chat({}) {
           }
         />
       </Box>
-    </Box>
+    </>
   );
 }
 
