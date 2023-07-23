@@ -1,6 +1,6 @@
 [package]
 name = "chitchat"
-version = "0.1.0"
+version = "0.1.1"
 description = "Chitchat"
 authors = ["Clark McCauley"]
 license = "MIT"
