@@ -19,9 +19,9 @@ today:
 
 See [releases](https://github.com/clarkmcc/chitchat/releases) for more downloads.
 
-- [macOS (M1)](https://github.com/clarkmcc/chitchat/releases/download/v0.1.0/Chitchat_0.1.0_m1_macos.app.zip)
-- [macOS (Intel)](https://github.com/clarkmcc/chitchat/releases/download/v0.1.0/Chitchat_0.1.0_x64.dmg)
-- [Windows (64-bit)](https://github.com/clarkmcc/chitchat/releases/download/v0.1.0/Chitchat_0.1.0_x64.msi)
+- [macOS (M1)](https://github.com/clarkmcc/chitchat/releases/download/v0.1.1/Chitchat_0.1.1_apple_m1.zip)
+- [macOS (Intel)](https://github.com/clarkmcc/chitchat/releases/download/v0.1.1/Chitchat_0.1.1_x64.dmg)
+- [Windows (64-bit)](https://github.com/clarkmcc/chitchat/releases/download/v0.1.1/Chitchat_0.1.1_x64_en-US.msi)
 
 ## Roadmap
 
