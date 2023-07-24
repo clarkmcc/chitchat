@@ -5,6 +5,7 @@ mod config;
 mod events;
 mod models;
 
+mod context_file;
 #[cfg(target_os = "macos")]
 mod titlebar;
 
@@ -20,6 +21,7 @@ use serde::Serialize;
 use std::convert::Infallible;
 use std::fs;
 use std::fs::create_dir_all;
+use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::{Manager, Window};
 use tauri_plugin_aptabase::EventTracker;
@@ -50,7 +52,21 @@ async fn start(
     context_size: usize,
     use_gpu: bool,
     warmup_prompt: String,
+    context_files: Vec<String>,
 ) -> Result<(), String> {
+    let context = context_files
+        .iter()
+        .map(|path| context_file::open_file(PathBuf::from(path)))
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|err| err.to_string())?
+        .join("\n");
+
+    let warmup_prompt = if !context.is_empty() {
+        format!("{}\n{}", context, warmup_prompt)
+    } else {
+        warmup_prompt
+    };
+
     let path = get_local_model(&model_filename, |downloaded, total, progress| {
         let message = format!(
             "Downloading model ({} / {})",
