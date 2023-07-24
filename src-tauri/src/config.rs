@@ -15,6 +15,12 @@ pub fn get_models_dir() -> Result<PathBuf> {
     Ok(dir)
 }
 
+pub fn get_loras_dir() -> Result<PathBuf> {
+    let dir = get_app_dir()?.join("loras");
+    create_dir_all(&dir)?;
+    Ok(dir)
+}
+
 pub fn get_logs_dir() -> Result<PathBuf> {
     let dir = get_app_dir()?.join("logs");
     create_dir_all(&dir)?;

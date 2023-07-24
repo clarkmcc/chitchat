@@ -1,4 +1,4 @@
-use crate::config::get_models_dir;
+use crate::config::{get_loras_dir, get_models_dir};
 use anyhow::Result;
 use futures_util::StreamExt;
 use lazy_static::lazy_static;
@@ -52,7 +52,7 @@ lazy_static! {
 /// (with associated metadata if we have them in our models.json file)
 /// and if the model is a model that we don't know about, then we return
 /// it first.
-pub async fn get_available_models() -> Result<Vec<Model>> {
+pub fn get_available_models() -> Result<Vec<Model>> {
     let dir = get_models_dir()?;
     let mut known_models = AVAILABLE_MODELS.clone();
     let mut models = fs::read_dir(dir)?
@@ -82,6 +82,26 @@ pub async fn get_available_models() -> Result<Vec<Model>> {
     Ok(models)
 }
 
+pub fn get_available_loras() -> Result<Vec<LoRA>> {
+    let dir = get_loras_dir()?;
+    let mut loras = fs::read_dir(dir)?
+        .filter_map(|file| {
+            if let Ok(file) = file {
+                if let Some(filename) = file.file_name().to_str() {
+                    if filename.ends_with(".bin") {
+                        return Some(LoRA {
+                            filename: filename.to_string(),
+                        });
+                    }
+                }
+            }
+            None
+        })
+        .collect::<Vec<_>>();
+    loras.sort_by(|a, b| a.filename.cmp(&b.filename));
+    Ok(loras)
+}
+
 #[derive(Serialize, Deserialize, Clone, Default)]
 pub struct Model {
     name: String,
@@ -97,6 +117,11 @@ pub struct Architecture {
     name: String,
     pub id: String,
     pub inner: llm::ModelArchitecture,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct LoRA {
+    pub filename: String,
 }
 
 pub struct ModelManager {
@@ -182,6 +207,20 @@ where
         info!(filename = model.filename, "finished downloading model");
     }
     Ok(models_dir.join(filename))
+}
+
+#[tracing::instrument(skip(progress))]
+pub async fn get_local_lora<F>(filename: &str, progress: F) -> Result<PathBuf>
+where
+    F: Fn(u64, u64, f32),
+{
+    let dir = get_loras_dir()?;
+    if !dir.join(filename).exists() {
+        // download_file(&model.url, &dir, &model.filename, progress).await?;
+        return Err(anyhow::anyhow!("LoRA not found"));
+        info!(filename = filename, "finished downloading LoRA");
+    }
+    Ok(dir.join(filename))
 }
 
 #[cfg(test)]

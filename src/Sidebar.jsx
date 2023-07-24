@@ -21,7 +21,7 @@ import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { invoke } from "@tauri-apps/api/tauri";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -31,6 +31,7 @@ import {
 } from "./state/messagesSlice.js";
 import IconButton from "@mui/joy/IconButton";
 import { Refresh } from "@mui/icons-material";
+import LoraSelector from "./LoraSelector.jsx";
 
 const schema = yup.object({
   modelFilename: yup.string().required(),
@@ -38,6 +39,11 @@ const schema = yup.object({
   tokenizer: yup.string().required(),
   contextSize: yup.number().required(),
   useGpu: yup.boolean().required(),
+  loras: yup.array().of(
+    yup.object({
+      filename: yup.string().required(),
+    }),
+  ),
   warmupPrompt: yup.string(),
 });
 
@@ -52,6 +58,7 @@ export default function Sidebar({ models, architectures, refreshModels }) {
       tokenizer: "embedded",
       contextSize: 2048,
       useGpu: true,
+      loras: [],
       warmupPrompt:
         "You are a helpful assistant. You provide short and simple answers to questions. \nSYSTEM: Hello, how may I help you today?\nUSER: What is the capital of France?\nSYSTEM: Paris is the capital of France.",
     },
@@ -204,6 +211,13 @@ export default function Sidebar({ models, architectures, refreshModels }) {
               <FormHelperText>
                 Longer contexts consume more resource
               </FormHelperText>
+            </FormControl>
+          </Grid>
+
+          <Grid xs={12}>
+            <FormControl>
+              <FormLabel>LoRAs</FormLabel>
+              <LoraSelector size="sm" control={control} name="loras" />
             </FormControl>
           </Grid>
 

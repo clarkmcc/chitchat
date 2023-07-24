@@ -15,6 +15,10 @@ export async function getModels() {
   return await invoke("get_models");
 }
 
+export async function getLoras() {
+  return await invoke("get_loras");
+}
+
 export async function getArchitectures() {
   return await invoke("get_architectures");
 }
