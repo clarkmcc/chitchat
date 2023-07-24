@@ -31,6 +31,7 @@ import {
 } from "./state/messagesSlice.js";
 import IconButton from "@mui/joy/IconButton";
 import { Refresh } from "@mui/icons-material";
+import ContextFileUploader from "./ContextFileUploader.jsx";
 
 const schema = yup.object({
   modelFilename: yup.string().required(),
@@ -39,6 +40,7 @@ const schema = yup.object({
   contextSize: yup.number().required(),
   useGpu: yup.boolean().required(),
   warmupPrompt: yup.string(),
+  contextFiles: yup.array().of(yup.string()),
 });
 
 export default function Sidebar({ models, architectures, refreshModels }) {
@@ -54,6 +56,7 @@ export default function Sidebar({ models, architectures, refreshModels }) {
       useGpu: true,
       warmupPrompt:
         "You are a helpful assistant. You provide short and simple answers to questions. \nSYSTEM: Hello, how may I help you today?\nUSER: What is the capital of France?\nSYSTEM: Paris is the capital of France.",
+      contextFiles: [],
     },
     resolver: yupResolver(schema),
   });
@@ -218,6 +221,20 @@ export default function Sidebar({ models, architectures, refreshModels }) {
             </Box>
             <FormHelperText>
               Show the model how it should respond
+            </FormHelperText>
+          </Grid>
+
+          <Grid xs={12}>
+            <FormLabel>Context files</FormLabel>
+            <Box pt={0.5} pb={0.5}>
+              <ContextFileUploader name="contextFiles" control={control} />
+            </Box>
+            <FormHelperText>
+              Upload &nbsp;
+              <pre>.txt</pre>
+              &nbsp; or &nbsp;
+              <pre>.pdf</pre>
+              &nbsp; files
             </FormHelperText>
           </Grid>
 
