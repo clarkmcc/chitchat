@@ -1,3 +1,4 @@
+#![feature(iterator_try_collect)]
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
@@ -13,7 +14,7 @@ use crate::titlebar::WindowExt;
 
 use crate::config::get_logs_dir;
 use crate::events::Event;
-use crate::models::{get_local_model, Architecture, Model, ModelManager};
+use crate::models::{get_local_lora, get_local_model, Architecture, LoRA, Model, ModelManager};
 use bytesize::ByteSize;
 use llm::{InferenceResponse, LoadProgress};
 use serde::Serialize;
@@ -30,9 +31,12 @@ struct ManagerState(Mutex<Option<ModelManager>>);
 
 #[tauri::command]
 async fn get_models() -> Result<Vec<Model>, String> {
-    models::get_available_models()
-        .await
-        .map_err(|err| err.to_string())
+    models::get_available_models().map_err(|err| err.to_string())
+}
+
+#[tauri::command]
+async fn get_loras() -> Result<Vec<LoRA>, String> {
+    models::get_available_loras().map_err(|err| err.to_string())
 }
 
 #[tauri::command]
@@ -50,6 +54,7 @@ async fn start(
     context_size: usize,
     use_gpu: bool,
     warmup_prompt: String,
+    loras: Vec<LoRA>,
 ) -> Result<(), String> {
     let path = get_local_model(&model_filename, |downloaded, total, progress| {
         let message = format!(
@@ -70,17 +75,36 @@ async fn start(
         _ => return Err("Tokenizer not supported".to_string()),
     };
 
+    let mut lora_filenames = vec![];
+    for lora in loras {
+        let filename = get_local_lora(&lora.filename, |downloaded, total, progress| {
+            let message = format!(
+                "Downloading {} ({} / {})",
+                lora.filename,
+                ByteSize(downloaded),
+                ByteSize(total)
+            );
+            Event::ModelLoading { message, progress }.send(&window);
+        })
+        .await
+        .map_err(|err| format!("Downloading LoRA {}: {}", lora.filename, err.to_string()))?;
+        lora_filenames.push(filename);
+    }
+
     info!(
         gpu = use_gpu,
         model = path.to_str().unwrap_or_default(),
         "starting model"
     );
 
-    let params = llm::ModelParameters {
+    let mut params = llm::ModelParameters {
         use_gpu,
         context_size,
         ..Default::default()
     };
+    if lora_filenames.len() > 0 {
+        params.lora_adapters = Some(lora_filenames);
+    }
     let model = llm::load_dynamic(
         Some(architecture.inner),
         path.as_path(),
@@ -125,7 +149,10 @@ async fn start(
             .send(&window),
         },
     )
-    .map_err(|e| format!("Error loading model: {}", e))?;
+    .map_err(|e| {
+        println!("{:?}", e);
+        return format!("Error loading model: {}", e);
+    })?;
 
     let mut response = String::new();
     let mut progress = 0.6;
@@ -233,6 +260,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             start,
             get_models,
+            get_loras,
             get_architectures,
             prompt,
         ])
