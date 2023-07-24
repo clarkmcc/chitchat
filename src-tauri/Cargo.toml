@@ -28,6 +28,10 @@ tracing-subscriber = { version = "0.3.17", features = ["json", "fmt", "env-filte
 tracing-appender = "0.2.2"
 tauri-plugin-aptabase = "0.3.1"
 
+# Used for context file parsing
+html2text = "0.6.0"
+pdf-extract = "0.6.5"
+
 [target.'cfg(target_os = "macos")'.dependencies]
 llm = { git = "https://github.com/rustformers/llm", branch = "main", features = ["metal"] }
 cocoa = "0.24.1"
