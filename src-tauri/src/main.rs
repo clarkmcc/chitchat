@@ -56,7 +56,7 @@ async fn start(
 ) -> Result<(), String> {
     let context = context_files
         .iter()
-        .map(|path| context_file::open_file(PathBuf::from(path)))
+        .map(|path| context_file::read(PathBuf::from(path)))
         .collect::<Result<Vec<_>, _>>()
         .map_err(|err| err.to_string())?
         .join("\n");
@@ -143,20 +143,20 @@ async fn start(
     )
     .map_err(|e| format!("Error loading model: {}", e))?;
 
-    let mut response = String::new();
-    let mut progress = 0.6;
     let mut session = model.start_session(Default::default());
+
+    // When you feed a prompt, progress is going to be determined by how far
+    // through repeating the warmup prompt we are.
+    let mut progress_length = 0;
     session
         .feed_prompt(
             model.as_ref(),
             warmup_prompt.as_str(),
             &mut Default::default(),
             llm::feed_prompt_callback(|res| match res {
-                InferenceResponse::PromptToken(t) | InferenceResponse::InferredToken(t) => {
-                    response.push_str(&t);
-                    if progress < 0.99 {
-                        progress += 0.001;
-                    }
+                InferenceResponse::PromptToken(t) => {
+                    progress_length += t.len();
+                    let progress = progress_length as f32 / warmup_prompt.len() as f32;
                     Event::ModelLoading {
                         message: format!("Warming up model ({:.2}%)", progress * 100.0),
                         progress,
@@ -169,7 +169,7 @@ async fn start(
         )
         .map_err(|e| format!("Error feeding prompt: {}", e))?;
 
-    info!(response = response, "finished warm-up prompt");
+    info!("finished warm-up prompt");
 
     *state.0.lock().unwrap() = Some(ModelManager { model, session });
 

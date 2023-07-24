@@ -232,8 +232,10 @@ export default function Sidebar({ models, architectures, refreshModels }) {
             <FormHelperText>
               Upload &nbsp;
               <pre>.txt</pre>
-              &nbsp; or &nbsp;
+              &nbsp;, &nbsp;
               <pre>.pdf</pre>
+              &nbsp; or &nbsp;
+              <pre>.html</pre>
               &nbsp; files
             </FormHelperText>
           </Grid>

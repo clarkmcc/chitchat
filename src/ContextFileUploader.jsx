@@ -22,7 +22,7 @@ export default function ContextFileUploader(props) {
       filters: [
         {
           name: "text",
-          extensions: ["txt", "pdf"],
+          extensions: ["txt", "pdf", "html", "md"],
         },
       ],
     });
