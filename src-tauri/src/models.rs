@@ -83,13 +83,36 @@ pub async fn get_available_models() -> Result<Vec<Model>> {
 }
 
 #[derive(Serialize, Deserialize, Clone, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct Model {
     name: String,
     url: String,
     #[serde(default)]
     pub custom: bool,
+    #[serde(default)]
+    pub recommended: bool,
     pub filename: String,
     pub description: String,
+    pub quantization: Option<Quantization>,
+    pub parameter_count: Option<String>,
+    pub labels: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Default)]
+pub enum Quantization {
+    #[serde(rename = "none")]
+    #[default]
+    None,
+    #[serde(rename = "8-bit")]
+    Bit8,
+    #[serde(rename = "6-bit")]
+    Bit6,
+    #[serde(rename = "5-bit")]
+    Bit5,
+    #[serde(rename = "4-bit")]
+    Bit4,
+    #[serde(rename = "2-bit")]
+    Bit2,
 }
 
 #[derive(Serialize, Clone)]
