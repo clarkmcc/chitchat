@@ -158,7 +158,7 @@ async fn start(
                     progress_length += t.len();
                     let progress = progress_length as f32 / warmup_prompt.len() as f32;
                     Event::ModelLoading {
-                        message: format!("Warming up model ({:.2}%)", progress * 100.0),
+                        message: format!("Warming up model ({:.0}%)", progress * 100.0),
                         progress,
                     }
                     .send(&window);

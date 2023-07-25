@@ -16,6 +16,7 @@ import {
   Switch,
   Textarea,
   Typography,
+  useTheme,
 } from "@mui/joy";
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -30,7 +31,7 @@ import {
   setWorldFreeze,
 } from "./state/messagesSlice.js";
 import IconButton from "@mui/joy/IconButton";
-import { Refresh } from "@mui/icons-material";
+import { Refresh, Star } from "@mui/icons-material";
 import ContextFileUploader from "./ContextFileUploader.jsx";
 
 const schema = yup.object({
@@ -83,6 +84,10 @@ export default function Sidebar({ models, architectures, refreshModels }) {
     listen("model_loading", (event) => setProgress(event.payload)).then();
   }
 
+  function getModelFromFilename(filename) {
+    return models.find((m) => m.filename === filename);
+  }
+
   function handleErrors(error) {
     console.error(error);
     setErrorMessage(JSON.stringify(error));
@@ -111,6 +116,11 @@ export default function Sidebar({ models, architectures, refreshModels }) {
                         {...field}
                         size="sm"
                         onChange={(event, value) => field.onChange(value)}
+                        renderValue={({ value }) => (
+                          <RenderModelOption
+                            model={getModelFromFilename(value)}
+                          />
+                        )}
                       >
                         {models.map((m) => (
                           <ListItem>
@@ -125,9 +135,19 @@ export default function Sidebar({ models, architectures, refreshModels }) {
                               >
                                 <Typography component="span">
                                   {m.name}
+                                  <Box className="space-x-1 mb-1">
+                                    <Label value={m.parameterCount} />
+                                    <Label value={m.quantization} />
+                                    {m.labels.map((v) => (
+                                      <Label value={v} />
+                                    ))}
+                                    {m.recommended && (
+                                      <Label value="Recommended" gold />
+                                    )}
+                                  </Box>
                                 </Typography>
                                 <Typography level="body4">
-                                  {m.description}
+                                  {m.filename}
                                 </Typography>
                               </Box>
                             </Option>
@@ -293,5 +313,53 @@ export default function Sidebar({ models, architectures, refreshModels }) {
         </Box>
       </Sheet>
     </>
+  );
+}
+
+/**
+ * Renders the model option with its characteristics after it has
+ * been selected in the select box.
+ * @param model - The model to render
+ * @returns {JSX.Element}
+ * @constructor
+ */
+function RenderModelOption({ model }) {
+  return (
+    <Box className="space-x-1">
+      <span>{model.name}</span>
+      <Label value={model.parameterCount} />
+      <Label value={model.quantization} />
+      {model.recommended && <Label value="Recommended" gold />}
+    </Box>
+  );
+}
+
+/**
+ * Used to render the characteristics of a model in the model
+ * options select. This could be the number of parameters, the
+ * quantization, or if it is a recommended model.
+ * @param value - The value to display in the label
+ * @param gold - Whether the label should be gold (for recommended models)
+ * @returns {JSX.Element}
+ * @constructor
+ */
+function Label({ value, gold }) {
+  const theme = useTheme();
+  const backgroundColor = gold
+    ? theme.palette.warning["200"]
+    : theme.palette.neutral.softBg;
+  const color = gold
+    ? theme.palette.warning["900"]
+    : theme.palette.text.primary;
+  return (
+    <div
+      className="px-2 py-0.5 inline rounded-md text-xs font-bold font-mono"
+      style={{
+        backgroundColor,
+        color,
+      }}
+    >
+      {value}
+    </div>
   );
 }
