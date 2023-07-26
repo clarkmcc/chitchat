@@ -34,6 +34,17 @@
     "labels": []
   },
   {
+    "name": "LLaMA 2 Chat",
+    "description": "New k-quant method. Uses GGML_TYPE_Q8_K for all tensors - 6-bit quantization",
+    "filename": "llama-2-13b-chat.ggmlv3.q6_K.bin",
+    "url": "https://huggingface.co/TheBloke/Llama-2-13B-chat-GGML/resolve/main/llama-2-13b-chat.ggmlv3.q6_K.bin",
+    "parameterCount": "13B",
+    "quantization": "6-bit",
+    "labels": [
+      "k-quant"
+    ]
+  },
+  {
     "name": "LLaMA",
     "description": "New k-quant method. Uses GGML_TYPE_Q4_K for the attention.vw and feed_forward.w2 tensors, GGML_TYPE_Q2_K for the other tensors.",
     "filename": "llama-7b.ggmlv3.q2_K.bin",
