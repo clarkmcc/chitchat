@@ -10,6 +10,7 @@ import {
   Grid,
   Input,
   LinearProgress,
+  List,
   ListItem,
   Option,
   Select,
@@ -22,7 +23,7 @@ import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { invoke } from "@tauri-apps/api/tauri";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -33,6 +34,8 @@ import {
 import IconButton from "@mui/joy/IconButton";
 import { Refresh, Star } from "@mui/icons-material";
 import ContextFileUploader from "./ContextFileUploader.jsx";
+import * as Accordion from "@radix-ui/react-accordion";
+import { AccordionContent, AccordionHeader } from "./Accordion.jsx";
 
 const schema = yup.object({
   modelFilename: yup.string().required(),
@@ -40,27 +43,36 @@ const schema = yup.object({
   tokenizer: yup.string().required(),
   contextSize: yup.number().required(),
   useGpu: yup.boolean().required(),
-  warmupPrompt: yup.string(),
+  prompt: yup.object({
+    template: yup.string().required(),
+    warmup: yup.string(),
+  }),
   contextFiles: yup.array().of(yup.string()),
 });
 
-export default function Sidebar({ models, architectures, refreshModels }) {
+export default function Sidebar({
+  models,
+  architectures,
+  templates,
+  refreshModels,
+}) {
+  const theme = useTheme();
   const worldFreeze = useSelector((state) => state.messages.worldFreeze);
   const [errorMessage, setErrorMessage] = useState(null);
   const dispatch = useDispatch();
-  const { register, control, watch, handleSubmit } = useForm({
-    defaultValues: {
-      modelFilename: models[0].filename,
-      architecture: architectures[0].id,
-      tokenizer: "embedded",
-      contextSize: 2048,
-      useGpu: true,
-      warmupPrompt:
-        "You are a helpful assistant. You provide short and simple answers to questions. \nSYSTEM: Hello, how may I help you today?\nUSER: What is the capital of France?\nSYSTEM: Paris is the capital of France.",
-      contextFiles: [],
-    },
-    resolver: yupResolver(schema),
-  });
+  const { register, control, watch, getValues, handleSubmit, setValue } =
+    useForm({
+      defaultValues: {
+        modelFilename: models[0].filename,
+        architecture: architectures[0].id,
+        tokenizer: "embedded",
+        contextSize: 2048,
+        useGpu: true,
+        prompt: templates[0],
+        contextFiles: [],
+      },
+      resolver: yupResolver(schema),
+    });
 
   // Selected modelFilename
   const selectedFilename = watch("modelFilename");
@@ -92,6 +104,15 @@ export default function Sidebar({ models, architectures, refreshModels }) {
     console.error(error);
     setErrorMessage(JSON.stringify(error));
   }
+
+  const w = watch("prompt.name");
+  useEffect(() => {
+    const template = templates.find((v) => v.name == w);
+    if (template) {
+      setValue("prompt.warmup", template.warmup);
+      setValue("prompt.template", template.template);
+    }
+  }, [w]);
 
   return (
     <>
@@ -230,18 +251,78 @@ export default function Sidebar({ models, architectures, refreshModels }) {
             </FormControl>
           </Grid>
 
-          <Grid xs={12} pb={2}>
-            <FormLabel>Warm-up prompt</FormLabel>
-            <Box pt={0.5} pb={0.5}>
-              <Controller
-                name="warmupPrompt"
-                control={control}
-                render={({ field }) => <Textarea {...field} size="sm" />}
-              />
-            </Box>
-            <FormHelperText>
-              Show the model how it should respond
-            </FormHelperText>
+          <Grid xs={12}>
+            <List
+              component={Accordion.Root}
+              type="multiple"
+              variant="outlined"
+              sx={{ borderRadius: theme.radius.sm }}
+            >
+              <Accordion.Item value="prompts">
+                <AccordionHeader>Prompting</AccordionHeader>
+                <AccordionContent>
+                  <Grid container rowSpacing={2}>
+                    <Grid xs={12}>
+                      <FormLabel>Prompt presets</FormLabel>
+                      <Controller
+                        name="prompt.name"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            size="sm"
+                            {...field}
+                            onChange={(event, value) => field.onChange(value)}
+                          >
+                            {templates.map((m) => (
+                              <Option
+                                key={m.name}
+                                value={m.name}
+                                label={m.name}
+                              >
+                                <Box
+                                  component="span"
+                                  sx={{ display: "block", maxWidth: "400px" }}
+                                >
+                                  <Typography component="span">
+                                    {m.name}
+                                  </Typography>
+                                </Box>
+                              </Option>
+                            ))}
+                          </Select>
+                        )}
+                      />
+                    </Grid>
+
+                    <Grid xs={12}>
+                      <FormLabel>Warm-up prompt</FormLabel>
+                      <Box pt={0.5} pb={0.5}>
+                        <Controller
+                          name="prompt.warmup"
+                          control={control}
+                          render={({ field }) => (
+                            <Textarea {...field} size="sm" />
+                          )}
+                        />
+                      </Box>
+                    </Grid>
+
+                    <Grid xs={12}>
+                      <FormLabel>Prompt template</FormLabel>
+                      <Box pt={0.5}>
+                        <Controller
+                          name="prompt.template"
+                          control={control}
+                          render={({ field }) => (
+                            <Textarea {...field} minRows={1} size="sm" />
+                          )}
+                        />
+                      </Box>
+                    </Grid>
+                  </Grid>
+                </AccordionContent>
+              </Accordion.Item>
+            </List>
           </Grid>
 
           <Grid xs={12}>

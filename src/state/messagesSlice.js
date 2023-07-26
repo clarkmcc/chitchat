@@ -21,7 +21,11 @@ export const messagesSlice = createSlice({
     },
     addPendingMessageTokens: (state, action) => {
       state.messageInProgress = true;
-      state.pendingMessage += action.payload;
+      let message = action.payload;
+      if (state.pendingMessage.length === 0) {
+        message = message.trimStart();
+      }
+      state.pendingMessage += message;
       console.log(state.pendingMessage);
     },
     finishLastMessage: (state) => {

@@ -1,4 +1,5 @@
 use crate::config::get_models_dir;
+use crate::prompt::Template;
 use anyhow::Result;
 use futures_util::StreamExt;
 use lazy_static::lazy_static;
@@ -60,10 +61,7 @@ pub async fn get_available_models() -> Result<Vec<Model>> {
             if let Ok(file) = file {
                 if let Some(filename) = file.file_name().to_str() {
                     if filename.ends_with(".bin")
-                        && known_models
-                            .iter()
-                            .find(|m| m.filename.as_str() == filename)
-                            .is_none()
+                        && !known_models.iter().any(|m| m.filename.as_str() == filename)
                     {
                         return Some(Model {
                             name: filename.to_string(),
@@ -125,6 +123,7 @@ pub struct Architecture {
 pub struct ModelManager {
     pub model: Box<dyn llm::Model>,
     pub session: llm::InferenceSession,
+    pub template: Template,
 }
 
 impl ModelManager {
@@ -137,7 +136,7 @@ impl ModelManager {
                 self.model.as_ref(),
                 &mut rand::thread_rng(),
                 &llm::InferenceRequest {
-                    prompt: prompt.into(),
+                    prompt: self.template.process(prompt).as_str().into(),
                     parameters: &llm::InferenceParameters::default(),
                     play_back_previous_tokens: false,
                     maximum_token_count: None,

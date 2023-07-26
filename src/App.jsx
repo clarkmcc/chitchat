@@ -3,13 +3,15 @@ import "./App.css";
 import { Alert, Box, Button, Grid } from "@mui/joy";
 import Sidebar from "./Sidebar.jsx";
 import Chat from "./Chat.jsx";
-import { getArchitectures, getModels } from "./api.js";
+import { getArchitectures, getModels, getPromptTemplates } from "./api.js";
 import { useSelector } from "react-redux";
 import { useError } from "./utilities.js";
 
 function App() {
   const [models, setModels] = useState([]);
   const modelsLoaded = models.length > 0;
+  const [templates, setTemplates] = useState([]);
+  const templatesLoaded = templates.length > 0;
   const [architectures, setArchitectures] = useState([]);
   const architecturesLoaded = architectures.length > 0;
   const error = useSelector((state) => state.app.error);
@@ -20,6 +22,9 @@ function App() {
   }, []);
   useEffect(() => {
     getArchitectures().then(setArchitectures).catch(setError);
+  }, []);
+  useEffect(() => {
+    getPromptTemplates().then(setTemplates).catch(setError);
   }, []);
 
   function loadModels() {
@@ -48,10 +53,11 @@ function App() {
       )}
       <Box className="h-screen flex overflow-hidden">
         <div className="w-1/2 flex flex-col h-full overflow-hidden">
-          {modelsLoaded && architecturesLoaded && (
+          {modelsLoaded && architecturesLoaded && templatesLoaded && (
             <Sidebar
               models={models}
               architectures={architectures}
+              templates={templates}
               refreshModels={loadModels}
             />
           )}
