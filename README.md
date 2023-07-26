@@ -1,4 +1,5 @@
-![banner-dark](https://github.com/clarkmcc/chitchat/assets/6639685/4638912f-5093-473d-8b08-39b0136052fa#gh-dark-mode-only)![banner-light](https://github.com/clarkmcc/chitchat/assets/6639685/d61035a6-edeb-4cc3-ba37-f90be5f10a02#gh-light-mode-only)
+[![Banner-Dark](https://github.com/clarkmcc/chitchat/assets/6639685/4638912f-5093-473d-8b08-39b0136052fa#gh-dark-mode-only)](https://github.com/clarkmcc/chitchat/assets/6639685/4638912f-5093-473d-8b08-39b0136052fa#gh-dark-mode-only)
+[![Banner-Light](https://github.com/clarkmcc/chitchat/assets/6639685/d61035a6-edeb-4cc3-ba37-f90be5f10a02#gh-light-mode-only)](https://github.com/clarkmcc/chitchat/assets/6639685/d61035a6-edeb-4cc3-ba37-f90be5f10a02#gh-light-mode-only)
 
 ![](https://media.githubusercontent.com/media/clarkmcc/chitchat/main/assets/demo.gif)
 
