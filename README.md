@@ -1,4 +1,5 @@
-# Chitchat
+![](https://media.githubusercontent.com/media/clarkmcc/chitchat/main/assets/banner-dark.png#gh-dark-mode-only)
+![](https://media.githubusercontent.com/media/clarkmcc/chitchat/main/assets/banner-light.png#gh-light-mode-only)
 
 ![](https://media.githubusercontent.com/media/clarkmcc/chitchat/main/assets/demo.gif)
 
