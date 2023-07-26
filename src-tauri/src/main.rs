@@ -6,6 +6,7 @@ mod events;
 mod models;
 
 mod context_file;
+mod prompt;
 #[cfg(target_os = "macos")]
 mod titlebar;
 
@@ -15,6 +16,7 @@ use crate::titlebar::WindowExt;
 use crate::config::get_logs_dir;
 use crate::events::Event;
 use crate::models::{get_local_model, Architecture, Model, ModelManager};
+use crate::prompt::Template;
 use bytesize::ByteSize;
 use llm::{InferenceResponse, LoadProgress};
 use serde::Serialize;
@@ -43,6 +45,11 @@ fn get_architectures() -> Vec<Architecture> {
 }
 
 #[tauri::command]
+fn get_prompt_templates() -> Vec<Template> {
+    prompt::AVAILABLE_TEMPLATES.clone()
+}
+
+#[tauri::command]
 async fn start(
     window: Window,
     state: tauri::State<'_, ManagerState>,
@@ -51,7 +58,7 @@ async fn start(
     tokenizer: String,
     context_size: usize,
     use_gpu: bool,
-    warmup_prompt: String,
+    prompt: Template,
     context_files: Vec<String>,
 ) -> Result<(), String> {
     let context = context_files
@@ -62,9 +69,9 @@ async fn start(
         .join("\n");
 
     let warmup_prompt = if !context.is_empty() {
-        format!("{}\n{}", context, warmup_prompt)
+        format!("{}\n{}", context, prompt.warmup)
     } else {
-        warmup_prompt
+        prompt.warmup.clone()
     };
 
     let path = get_local_model(&model_filename, |downloaded, total, progress| {
@@ -171,7 +178,11 @@ async fn start(
 
     info!("finished warm-up prompt");
 
-    *state.0.lock().unwrap() = Some(ModelManager { model, session });
+    *state.0.lock().unwrap() = Some(ModelManager {
+        model,
+        session,
+        template: prompt,
+    });
 
     Event::ModelLoading {
         message: "Model loaded".to_string(),
@@ -202,7 +213,6 @@ async fn prompt(
         .lock()
         .map_err(|e| format!("Unable to lock the backend: {e}"))?;
     let manager: &mut ModelManager = (*binding).as_mut().ok_or("Model not started".to_string())?;
-    let message = format!("USER: {}\nSYSTEM: ", message);
     let mut response = String::new();
 
     let stats = manager.infer(&message, |tokens| {
@@ -218,7 +228,7 @@ async fn prompt(
 
     Ok(PromptResponse {
         stats,
-        message: response.replace(&message, ""),
+        message: response.replace(&message, "").trim().to_string(),
     })
 }
 
@@ -250,6 +260,7 @@ fn main() {
             start,
             get_models,
             get_architectures,
+            get_prompt_templates,
             prompt,
         ])
         .manage(ManagerState(Mutex::new(None)));

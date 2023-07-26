@@ -18,3 +18,7 @@ export async function getModels() {
 export async function getArchitectures() {
   return await invoke("get_architectures");
 }
+
+export async function getPromptTemplates() {
+  return await invoke("get_prompt_templates");
+}
