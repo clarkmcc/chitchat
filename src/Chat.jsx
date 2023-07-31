@@ -1,9 +1,14 @@
-import { Box, CircularProgress, Input, useTheme } from "@mui/joy";
+import { Box, Input, useTheme } from "@mui/joy";
 import IconButton from "@mui/joy/IconButton";
-import { ArrowCircleLeft, CheckCircle, Send } from "@mui/icons-material";
+import {
+  ArrowCircleLeft,
+  Cancel,
+  CheckCircle,
+  Send,
+} from "@mui/icons-material";
 import React, { useCallback, useRef, useState } from "react";
 import ChatBubble from "./ChatBubble.jsx";
-import { prompt } from "./api.js";
+import { cancel, prompt } from "./api.js";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addMessage,
@@ -43,6 +48,10 @@ export default function Chat({}) {
     dispatch(setWorldFreeze(false));
     setMessage("");
   }, [message]);
+
+  function handleCancel() {
+    cancel().then().catch(setError);
+  }
 
   function createUserMessage(message) {
     dispatch(addMessage({ isUser: true, finished: true, message }));
@@ -91,7 +100,7 @@ export default function Chat({}) {
       <Box className="sticky bottom-0" p={2}>
         <Input
           value={message}
-          disabled={worldFreeze}
+          // disabled={worldFreeze}
           onChange={(e) => setMessage(e.target.value)}
           size="lg"
           placeholder={placeholder}
@@ -99,7 +108,10 @@ export default function Chat({}) {
           onKeyDown={handleSendKeyDown}
           endDecorator={
             worldFreeze ? (
-              <CircularProgress size="sm" color="neutral" />
+              // <CircularProgress size="sm" color="neutral" />
+              <IconButton color="danger" onClick={handleCancel}>
+                <Cancel />
+              </IconButton>
             ) : (
               <IconButton color="neutral" onClick={handleSend}>
                 <Send />

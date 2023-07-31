@@ -5,22 +5,22 @@ mod config;
 mod events;
 mod models;
 
+mod cancellation;
 mod context_file;
 mod prompt;
 #[cfg(target_os = "macos")]
 mod titlebar;
 
-#[cfg(target_os = "macos")]
-use crate::titlebar::WindowExt;
-
+use crate::cancellation::Canceller;
 use crate::config::get_logs_dir;
 use crate::events::Event;
 use crate::models::{get_local_model, Architecture, Model, ModelManager};
 use crate::prompt::Template;
+#[cfg(target_os = "macos")]
+use crate::titlebar::WindowExt;
 use bytesize::ByteSize;
 use llm::{InferenceResponse, LoadProgress};
 use serde::Serialize;
-use std::convert::Infallible;
 use std::fs;
 use std::fs::create_dir_all;
 use std::path::PathBuf;
@@ -50,9 +50,17 @@ fn get_prompt_templates() -> Vec<Template> {
 }
 
 #[tauri::command]
+async fn cancel(canceller: tauri::State<'_, Canceller>) -> Result<(), String> {
+    canceller.cancel();
+    println!("Cancelled");
+    Ok(())
+}
+
+#[tauri::command]
 async fn start(
     window: Window,
     state: tauri::State<'_, ManagerState>,
+    canceller: tauri::State<'_, Canceller>,
     model_filename: String,
     architecture: String,
     tokenizer: String,
@@ -61,6 +69,7 @@ async fn start(
     prompt: Template,
     context_files: Vec<String>,
 ) -> Result<(), String> {
+    canceller.reset();
     let context = context_files
         .iter()
         .map(|path| context_file::read(PathBuf::from(path)))
@@ -169,9 +178,9 @@ async fn start(
                         progress,
                     }
                     .send(&window);
-                    Ok::<llm::InferenceFeedback, Infallible>(llm::InferenceFeedback::Continue)
+                    canceller.inference_feedback()
                 }
-                _ => Ok(llm::InferenceFeedback::Continue),
+                _ => canceller.inference_feedback(),
             }),
         )
         .map_err(|e| format!("Error feeding prompt: {}", e))?;
@@ -199,11 +208,12 @@ pub struct PromptResponse {
     pub message: String,
 }
 
-#[tracing::instrument(skip(window, state, message))]
+#[tracing::instrument(skip(window, state, canceller, message))]
 #[tauri::command]
 async fn prompt(
     window: Window,
     state: tauri::State<'_, ManagerState>,
+    canceller: tauri::State<'_, Canceller>,
     message: String,
 ) -> Result<PromptResponse, String> {
     info!("received prompt");
@@ -215,9 +225,13 @@ async fn prompt(
     let manager: &mut ModelManager = (*binding).as_mut().ok_or("Model not started".to_string())?;
     let mut response = String::new();
 
-    let stats = manager.infer(&message, |tokens| {
-        response.push_str(&tokens);
-        Event::PromptResponse { message: tokens }.send(&window);
+    let stats = manager.infer(&message, |res| match res {
+        InferenceResponse::InferredToken(tokens) => {
+            response.push_str(&tokens);
+            Event::PromptResponse { message: tokens }.send(&window);
+            canceller.inference_feedback()
+        }
+        _ => canceller.inference_feedback(),
     })?;
 
     info!("finished prompt response");
@@ -262,8 +276,10 @@ fn main() {
             get_architectures,
             get_prompt_templates,
             prompt,
+            cancel,
         ])
-        .manage(ManagerState(Mutex::new(None)));
+        .manage(ManagerState(Mutex::new(None)))
+        .manage(Canceller::default());
 
     // #[cfg(feature = "analytics")]
     // let panic_hook = tauri_plugin_aptabase::Builder::new(env!("APTABASE_KEY"))
