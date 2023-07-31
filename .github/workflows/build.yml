@@ -1,8 +1,5 @@
 name: Build
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
     inputs:
       release:
@@ -50,6 +47,21 @@ jobs:
       - name: Install frontend dependencies
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
         run: yarn install # Change this to npm, yarn or pnpm.
+
+        # CUDA
+      - uses: Jimver/cuda-toolkit@v0.2.11
+        if: matrix.platform == 'windows-latest'
+        id: cuda-toolkit
+        with:
+          cuda: '12.1.0'
+      - if: matrix.platform == 'windows-latest'
+        run: |
+          echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"
+      - if: matrix.platform == 'windows-latest'
+        run: |
+          echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
+      - if: matrix.platform == 'windows-latest'
+        run: nvcc -V
 
       - name: Build
         if: inputs.release == false
