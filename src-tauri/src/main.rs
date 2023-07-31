@@ -51,9 +51,7 @@ fn get_prompt_templates() -> Vec<Template> {
 
 #[tauri::command]
 async fn cancel(canceller: tauri::State<'_, Canceller>) -> Result<(), String> {
-    canceller.cancel();
-    println!("Cancelled");
-    Ok(())
+    canceller.cancel().await.map_err(|err| err.to_string())
 }
 
 #[tauri::command]
@@ -68,7 +66,7 @@ async fn start(
     use_gpu: bool,
     prompt: Template,
     context_files: Vec<String>,
-) -> Result<(), String> {
+) -> Result<bool, String> {
     canceller.reset();
     let context = context_files
         .iter()
@@ -184,22 +182,24 @@ async fn start(
             }),
         )
         .map_err(|e| format!("Error feeding prompt: {}", e))?;
-
-    info!("finished warm-up prompt");
-
-    *state.0.lock().unwrap() = Some(ModelManager {
-        model,
-        session,
-        template: prompt,
-    });
-
     Event::ModelLoading {
         message: "Model loaded".to_string(),
         progress: 1.0,
     }
     .send(&window);
 
-    Ok(())
+    if canceller.is_cancelled() {
+        return Ok(false);
+    }
+
+    info!("finished warm-up prompt");
+    *state.0.lock().unwrap() = Some(ModelManager {
+        model,
+        session,
+        template: prompt,
+    });
+
+    Ok(true)
 }
 
 #[derive(Serialize)]

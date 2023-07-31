@@ -1,4 +1,4 @@
-import { Box, Input, useTheme } from "@mui/joy";
+import { Box, CircularProgress, Input, useTheme } from "@mui/joy";
 import IconButton from "@mui/joy/IconButton";
 import {
   ArrowCircleLeft,
@@ -8,7 +8,7 @@ import {
 } from "@mui/icons-material";
 import React, { useCallback, useRef, useState } from "react";
 import ChatBubble from "./ChatBubble.jsx";
-import { cancel, prompt } from "./api.js";
+import { prompt } from "./api.js";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addMessage,
@@ -16,7 +16,7 @@ import {
   finishLastMessage,
   setWorldFreeze,
 } from "./state/messagesSlice.js";
-import { isWindows, useError } from "./utilities.js";
+import { isWindows, useCancellation, useError } from "./utilities.js";
 
 export default function Chat({}) {
   const endOfMessagesRef = useRef(null);
@@ -26,6 +26,8 @@ export default function Chat({}) {
   );
   const pendingMessage = useSelector((state) => state.messages.pendingMessage);
   const worldFreeze = useSelector((state) => state.messages.worldFreeze);
+  const isCancelling = useSelector((state) => state.messages.cancelling);
+  const cancel = useCancellation();
   const dispatch = useDispatch();
 
   const [message, setMessage] = useState("");
@@ -48,10 +50,6 @@ export default function Chat({}) {
     dispatch(setWorldFreeze(false));
     setMessage("");
   }, [message]);
-
-  function handleCancel() {
-    cancel().then().catch(setError);
-  }
 
   function createUserMessage(message) {
     dispatch(addMessage({ isUser: true, finished: true, message }));
@@ -100,7 +98,6 @@ export default function Chat({}) {
       <Box className="sticky bottom-0" p={2}>
         <Input
           value={message}
-          // disabled={worldFreeze}
           onChange={(e) => setMessage(e.target.value)}
           size="lg"
           placeholder={placeholder}
@@ -108,10 +105,13 @@ export default function Chat({}) {
           onKeyDown={handleSendKeyDown}
           endDecorator={
             worldFreeze ? (
-              // <CircularProgress size="sm" color="neutral" />
-              <IconButton color="danger" onClick={handleCancel}>
-                <Cancel />
-              </IconButton>
+              isCancelling ? (
+                <CircularProgress size="sm" color="danger" />
+              ) : (
+                <IconButton color="danger" onClick={cancel}>
+                  <Cancel />
+                </IconButton>
+              )
             ) : (
               <IconButton color="neutral" onClick={handleSend}>
                 <Send />
