@@ -18,6 +18,7 @@ jobs:
         platform:
           - macos-latest
           - windows-latest
+          - ubuntu-20.04
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout repository
@@ -50,17 +51,17 @@ jobs:
 
         # CUDA
       - uses: Jimver/cuda-toolkit@v0.2.11
-        if: matrix.platform == 'windows-latest'
+        if: matrix.platform == 'windows-latest' || matrix.platform == 'ubuntu-20.04'
         id: cuda-toolkit
         with:
           cuda: '12.1.0'
-      - if: matrix.platform == 'windows-latest'
+      - if: matrix.platform == 'windows-latest' || matrix.platform == 'ubuntu-20.04'
         run: |
           echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"
-      - if: matrix.platform == 'windows-latest'
+      - if: matrix.platform == 'windows-latest' || matrix.platform == 'ubuntu-20.04'
         run: |
           echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
-      - if: matrix.platform == 'windows-latest'
+      - if: matrix.platform == 'windows-latest' || matrix.platform == 'ubuntu-20.04'
         run: nvcc -V
 
       - name: Build
