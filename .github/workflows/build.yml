@@ -51,17 +51,17 @@ jobs:
 
         # CUDA
       - uses: Jimver/cuda-toolkit@v0.2.11
-        if: matrix.platform == 'windows-latest' || matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'windows-latest'
         id: cuda-toolkit
         with:
           cuda: '12.1.0'
-      - if: matrix.platform == 'windows-latest' || matrix.platform == 'ubuntu-20.04'
+      - if: matrix.platform == 'windows-latest'
         run: |
           echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"
-      - if: matrix.platform == 'windows-latest' || matrix.platform == 'ubuntu-20.04'
+      - if: matrix.platform == 'windows-latest'
         run: |
           echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
-      - if: matrix.platform == 'windows-latest' || matrix.platform == 'ubuntu-20.04'
+      - if: matrix.platform == 'windows-latest'
         run: nvcc -V
 
       - name: Build
