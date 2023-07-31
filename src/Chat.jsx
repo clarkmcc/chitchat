@@ -11,7 +11,7 @@ import {
   finishLastMessage,
   setWorldFreeze,
 } from "./state/messagesSlice.js";
-import { isWindows, useError } from "./utilities.js";
+import { isWindows, useError, useRateTracker } from "./utilities.js";
 
 export default function Chat({}) {
   const endOfMessagesRef = useRef(null);
@@ -22,17 +22,21 @@ export default function Chat({}) {
   const pendingMessage = useSelector((state) => state.messages.pendingMessage);
   const worldFreeze = useSelector((state) => state.messages.worldFreeze);
   const dispatch = useDispatch();
+  const [tokenRate, observeTokens, resetTokenRate] = useRateTracker();
 
+  const theme = useTheme();
   const [message, setMessage] = useState("");
   const [setError] = useError();
 
   const handleSend = useCallback(async () => {
     dispatch(setWorldFreeze(true));
+    resetTokenRate();
 
     createUserMessage(message);
     try {
       await prompt(message, (tokens) => {
         dispatch(addPendingMessageTokens(tokens));
+        observeTokens();
         scrollToBottom();
       });
     } catch (e) {
@@ -89,6 +93,14 @@ export default function Chat({}) {
         </Box>
       </Box>
       <Box className="sticky bottom-0" p={2}>
+        {!isNaN(tokenRate) && (
+          <div
+            className="text-xs mb-3"
+            style={{ color: theme.palette.text.tertiary }}
+          >
+            {Math.round(tokenRate * 100) / 100} tokens/s
+          </div>
+        )}
         <Input
           value={message}
           disabled={worldFreeze}
