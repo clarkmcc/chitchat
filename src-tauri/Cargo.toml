@@ -37,7 +37,7 @@ llm = { git = "https://github.com/rustformers/llm", branch = "main", features = 
 cocoa = "0.24.1"
 
 [target.'cfg(not(target_os = "macos"))'.dependencies]
-llm = { git = "https://github.com/rustformers/llm", branch = "main", features = [] }
+llm = { git = "https://github.com/rustformers/llm", branch = "main", features = ["cublas"] }
 
 [features]
 analytics = []
