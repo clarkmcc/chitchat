@@ -1,6 +1,12 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+#[cfg_attr(
+    all(not(test), any(target_os = "windows", target_os = "linux")),
+    feature(cublas)
+)]
+extern crate llm;
+
 mod config;
 mod events;
 mod models;
