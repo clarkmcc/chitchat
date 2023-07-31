@@ -33,7 +33,7 @@ export default function ChatBubble({ isUser, message, loading, ...props }) {
           sx={{
             borderRadius: `${borderRadius} ${borderRadius} 0px ${borderRadius}`,
             backgroundColor: messageBackground,
-            width: "90%",
+            maxWidth: "90%",
           }}
         >
           <Message
@@ -57,7 +57,7 @@ export default function ChatBubble({ isUser, message, loading, ...props }) {
         sx={{
           borderRadius: `${borderRadius} ${borderRadius} ${borderRadius} 0px`,
           backgroundColor: messageBackground,
-          width: "90%",
+          maxWidth: "90%",
         }}
       >
         <Message

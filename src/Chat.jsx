@@ -28,12 +28,12 @@ export default function Chat({}) {
 
   const handleSend = useCallback(async () => {
     dispatch(setWorldFreeze(true));
-    scrollToBottom();
 
     createUserMessage(message);
     try {
       await prompt(message, (tokens) => {
         dispatch(addPendingMessageTokens(tokens));
+        scrollToBottom();
       });
     } catch (e) {
       setError(e);

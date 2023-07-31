@@ -51,8 +51,11 @@ function App() {
           <Box className="pt-5">Error: {JSON.stringify(error)}</Box>
         </Alert>
       )}
-      <Box className="h-screen flex overflow-hidden">
-        <div className="w-1/2 flex flex-col h-full overflow-hidden">
+      <div className="h-screen flex overflow-hidden">
+        <div
+          className="flex flex-col h-full overflow-hidden"
+          style={{ minWidth: "500px", width: "500px" }}
+        >
           {modelsLoaded && architecturesLoaded && templatesLoaded && (
             <Sidebar
               models={models}
@@ -62,10 +65,10 @@ function App() {
             />
           )}
         </div>
-        <div className="w-1/2 flex flex-col h-full overflow-hidden">
+        <div className="flex-grow flex flex-col h-full overflow-hidden">
           <Chat />
         </div>
-      </Box>
+      </div>
     </>
   );
 }
