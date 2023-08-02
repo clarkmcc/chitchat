@@ -37,7 +37,11 @@ pdf-extract = "0.6.5"
 llm = { git = "https://github.com/rustformers/llm", branch = "main", features = ["metal"] }
 cocoa = "0.24.1"
 
-[target.'cfg(not(target_os = "macos"))'.dependencies]
+# TODO: Figure out how to get CUDA working on Linux without ruining CUDA-less testing
+[target.'cfg(target_os = "windows")'.dependencies]
+llm = { git = "https://github.com/rustformers/llm", branch = "main", features = ["cublas"] }
+
+[target.'cfg(all(not(target_os = "macos"), not(target_os = "windows")))'.dependencies]
 llm = { git = "https://github.com/rustformers/llm", branch = "main", features = [] }
 
 [features]
