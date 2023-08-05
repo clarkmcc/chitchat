@@ -127,9 +127,9 @@ pub struct ModelManager {
 }
 
 impl ModelManager {
-    pub fn infer<F>(&mut self, prompt: &str, mut callback: F) -> Result<llm::InferenceStats, String>
+    pub fn infer<F>(&mut self, prompt: &str, callback: F) -> Result<llm::InferenceStats, String>
     where
-        F: FnMut(String),
+        F: FnMut(llm::InferenceResponse) -> Result<llm::InferenceFeedback, Infallible>,
     {
         self.session
             .infer(
@@ -142,16 +142,7 @@ impl ModelManager {
                     maximum_token_count: None,
                 },
                 &mut Default::default(),
-                |res| match res {
-                    llm::InferenceResponse::InferredToken(t) => {
-                        callback(t);
-                        Ok::<llm::InferenceFeedback, Infallible>(llm::InferenceFeedback::Continue)
-                    }
-                    llm::InferenceResponse::SnapshotToken(t) => {
-                        Ok::<llm::InferenceFeedback, Infallible>(llm::InferenceFeedback::Continue)
-                    }
-                    _ => Ok(llm::InferenceFeedback::Continue),
-                },
+                callback,
             )
             .map_err(|e| format!("Error inferring: {}", e))
     }

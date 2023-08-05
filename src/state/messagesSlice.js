@@ -8,6 +8,7 @@ export const messagesSlice = createSlice({
     messages: [],
     pendingMessage: "",
     messageInProgress: false,
+    cancelling: false,
   },
   reducers: {
     loadedModel: (state) => {
@@ -40,6 +41,9 @@ export const messagesSlice = createSlice({
     clearMessages: (state) => {
       state.messages = [];
     },
+    setCancelling: (state, action) => {
+      state.cancelling = action.payload;
+    },
   },
 });
 
@@ -50,5 +54,6 @@ export const {
   setWorldFreeze,
   addPendingMessageTokens,
   clearMessages,
+  setCancelling,
 } = messagesSlice.actions;
 export default messagesSlice.reducer;

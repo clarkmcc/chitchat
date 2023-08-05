@@ -527,6 +527,7 @@ dependencies = [
  "anyhow",
  "bytesize",
  "cocoa",
+ "flume",
  "futures-util",
  "home",
  "html2text",
@@ -1242,6 +1243,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "flume"
+version = "0.10.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1657b4441c3403d9f7b3409e47575237dac27b1b5726df654a6ecbf92f0f7577"
+dependencies = [
+ "futures-core",
+ "futures-sink",
+ "nanorand",
+ "pin-project",
+ "spin",
+]
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1514,14 +1528,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be4136b2a15dd319360be1c07d9933517ccf0be8f16bf62a3bee4f0d618df427"
 dependencies = [
  "cfg-if",
+ "js-sys",
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
+ "wasm-bindgen",
 ]
 
 [[package]]
 name = "ggml"
 version = "0.2.0-dev"
-source = "git+https://github.com/rustformers/llm?branch=main#3b114b00c8338e78bfd99992911812471f1cdab5"
+source = "git+https://github.com/rustformers/llm?branch=main#39eb341aeda6a3ff0240421e54df2707ae8743fc"
 dependencies = [
  "ggml-sys",
  "memmap2",
@@ -1531,7 +1547,7 @@ dependencies = [
 [[package]]
 name = "ggml-sys"
 version = "0.2.0-dev"
-source = "git+https://github.com/rustformers/llm?branch=main#3b114b00c8338e78bfd99992911812471f1cdab5"
+source = "git+https://github.com/rustformers/llm?branch=main#39eb341aeda6a3ff0240421e54df2707ae8743fc"
 dependencies = [
  "cc",
 ]
@@ -2212,7 +2228,7 @@ checksum = "ef53942eb7bf7ff43a617b3e2c1c4a5ecf5944a7c1bc12d7ee39bbb15e5c1519"
 [[package]]
 name = "llm"
 version = "0.2.0-dev"
-source = "git+https://github.com/rustformers/llm?branch=main#3b114b00c8338e78bfd99992911812471f1cdab5"
+source = "git+https://github.com/rustformers/llm?branch=main#39eb341aeda6a3ff0240421e54df2707ae8743fc"
 dependencies = [
  "llm-base",
  "llm-bloom",
@@ -2228,7 +2244,7 @@ dependencies = [
 [[package]]
 name = "llm-base"
 version = "0.2.0-dev"
-source = "git+https://github.com/rustformers/llm?branch=main#3b114b00c8338e78bfd99992911812471f1cdab5"
+source = "git+https://github.com/rustformers/llm?branch=main#39eb341aeda6a3ff0240421e54df2707ae8743fc"
 dependencies = [
  "bytemuck",
  "ggml",
@@ -2247,7 +2263,7 @@ dependencies = [
 [[package]]
 name = "llm-bloom"
 version = "0.2.0-dev"
-source = "git+https://github.com/rustformers/llm?branch=main#3b114b00c8338e78bfd99992911812471f1cdab5"
+source = "git+https://github.com/rustformers/llm?branch=main#39eb341aeda6a3ff0240421e54df2707ae8743fc"
 dependencies = [
  "llm-base",
 ]
@@ -2255,7 +2271,7 @@ dependencies = [
 [[package]]
 name = "llm-gpt2"
 version = "0.2.0-dev"
-source = "git+https://github.com/rustformers/llm?branch=main#3b114b00c8338e78bfd99992911812471f1cdab5"
+source = "git+https://github.com/rustformers/llm?branch=main#39eb341aeda6a3ff0240421e54df2707ae8743fc"
 dependencies = [
  "bytemuck",
  "llm-base",
@@ -2264,7 +2280,7 @@ dependencies = [
 [[package]]
 name = "llm-gptj"
 version = "0.2.0-dev"
-source = "git+https://github.com/rustformers/llm?branch=main#3b114b00c8338e78bfd99992911812471f1cdab5"
+source = "git+https://github.com/rustformers/llm?branch=main#39eb341aeda6a3ff0240421e54df2707ae8743fc"
 dependencies = [
  "llm-base",
 ]
@@ -2272,7 +2288,7 @@ dependencies = [
 [[package]]
 name = "llm-gptneox"
 version = "0.2.0-dev"
-source = "git+https://github.com/rustformers/llm?branch=main#3b114b00c8338e78bfd99992911812471f1cdab5"
+source = "git+https://github.com/rustformers/llm?branch=main#39eb341aeda6a3ff0240421e54df2707ae8743fc"
 dependencies = [
  "llm-base",
 ]
@@ -2280,7 +2296,7 @@ dependencies = [
 [[package]]
 name = "llm-llama"
 version = "0.2.0-dev"
-source = "git+https://github.com/rustformers/llm?branch=main#3b114b00c8338e78bfd99992911812471f1cdab5"
+source = "git+https://github.com/rustformers/llm?branch=main#39eb341aeda6a3ff0240421e54df2707ae8743fc"
 dependencies = [
  "llm-base",
  "tracing",
@@ -2289,7 +2305,7 @@ dependencies = [
 [[package]]
 name = "llm-mpt"
 version = "0.2.0-dev"
-source = "git+https://github.com/rustformers/llm?branch=main#3b114b00c8338e78bfd99992911812471f1cdab5"
+source = "git+https://github.com/rustformers/llm?branch=main#39eb341aeda6a3ff0240421e54df2707ae8743fc"
 dependencies = [
  "llm-base",
 ]
@@ -2513,6 +2529,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.26",
+]
+
+[[package]]
+name = "nanorand"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a51313c5820b0b02bd422f4b44776fbf47961755c74ce64afc73bfad10226c3"
+dependencies = [
+ "getrandom 0.2.10",
 ]
 
 [[package]]
@@ -3076,6 +3101,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b6796ad771acdc0123d2a88dc428b5e38ef24456743ddb1744ed628f9815c096"
 dependencies = [
  "siphasher",
+]
+
+[[package]]
+name = "pin-project"
+version = "1.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "030ad2bc4db10a8944cb0d837f158bdfec4d4a4873ab701a95046770d11f8842"
+dependencies = [
+ "pin-project-internal",
+]
+
+[[package]]
+name = "pin-project-internal"
+version = "1.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec2e072ecce94ec471b13398d5402c188e76ac03cf74dd1a975161b23a3f6d9c"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.26",
 ]
 
 [[package]]
@@ -3927,6 +3972,15 @@ dependencies = [
  "gobject-sys",
  "libc",
  "system-deps 5.0.0",
+]
+
+[[package]]
+name = "spin"
+version = "0.9.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67"
+dependencies = [
+ "lock_api",
 ]
 
 [[package]]

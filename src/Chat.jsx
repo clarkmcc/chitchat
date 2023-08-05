@@ -1,6 +1,11 @@
 import { Box, CircularProgress, Input, useTheme } from "@mui/joy";
 import IconButton from "@mui/joy/IconButton";
-import { ArrowCircleLeft, CheckCircle, Send } from "@mui/icons-material";
+import {
+  ArrowCircleLeft,
+  Cancel,
+  CheckCircle,
+  Send,
+} from "@mui/icons-material";
 import React, { useCallback, useRef, useState } from "react";
 import ChatBubble from "./ChatBubble.jsx";
 import { prompt } from "./api.js";
@@ -11,7 +16,7 @@ import {
   finishLastMessage,
   setWorldFreeze,
 } from "./state/messagesSlice.js";
-import { isWindows, useError, useRateTracker } from "./utilities.js";
+import { isWindows, useError, useCancellation, useRateTracker } from "./utilities.js";
 
 export default function Chat({}) {
   const endOfMessagesRef = useRef(null);
@@ -21,6 +26,8 @@ export default function Chat({}) {
   );
   const pendingMessage = useSelector((state) => state.messages.pendingMessage);
   const worldFreeze = useSelector((state) => state.messages.worldFreeze);
+  const isCancelling = useSelector((state) => state.messages.cancelling);
+  const cancel = useCancellation();
   const dispatch = useDispatch();
   const [tokenRate, observeTokens, resetTokenRate] = useRateTracker();
 
@@ -103,7 +110,6 @@ export default function Chat({}) {
         )}
         <Input
           value={message}
-          disabled={worldFreeze}
           onChange={(e) => setMessage(e.target.value)}
           size="lg"
           placeholder={placeholder}
@@ -111,7 +117,13 @@ export default function Chat({}) {
           onKeyDown={handleSendKeyDown}
           endDecorator={
             worldFreeze ? (
-              <CircularProgress size="sm" color="neutral" />
+              isCancelling ? (
+                <CircularProgress size="sm" color="danger" />
+              ) : (
+                <IconButton color="danger" onClick={cancel}>
+                  <Cancel />
+                </IconButton>
+              )
             ) : (
               <IconButton color="neutral" onClick={handleSend}>
                 <Send />

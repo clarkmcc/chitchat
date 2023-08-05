@@ -87,7 +87,9 @@ export default function Sidebar({
     dispatch(clearMessages());
     dispatch(setWorldFreeze(true));
     invoke("start", data)
-      .then(() => dispatch(loadedModel()))
+      .then((loaded) => {
+        if (loaded) dispatch(loadedModel());
+      })
       .catch((err) => {
         console.error(err);
         setErrorMessage(err);
